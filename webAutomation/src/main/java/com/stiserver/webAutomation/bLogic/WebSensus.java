@@ -38,10 +38,10 @@ public class WebSensus {
         this.password = pw;
         this.url = url;
         driver = new FirefoxDriver(getSettings());
-        login();
+       login();
        getAdditionalReport();
        getSensusReport();
-      driver.close();
+       driver.close();
 
     }
 

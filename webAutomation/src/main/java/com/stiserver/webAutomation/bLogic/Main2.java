@@ -3,6 +3,7 @@ import ch.qos.logback.core.net.server.Client;
 import com.opencsv.CSVReader;
 
 import com.stiserver.webAutomation.controller.ApiController;
+import com.stiserver.webAutomation.service.RestClient;
 import com.stiserver.webAutomation.service.crud.DeleteFromTable;
 import com.stiserver.webAutomation.service.crud.InsertIntoTable;
 import com.stiserver.webAutomation.service.crud.RunProcedure;
@@ -29,7 +30,7 @@ public class Main2 {
         for (int i = 1; i < sites.size(); i++) {
             //  run(sites, i);
         }
-        run(sites, 5);
+        run(sites, 2);
     }
 
     private static void run(ArrayList<String[]> sites, int index) throws Exception {
@@ -38,36 +39,29 @@ public class Main2 {
 
 
             //GET REPORTS FOR WEB
-            WebBadger connectingTo = new WebBadger();
-            connectingTo.Badger(sites.get(index)[4], sites.get(index)[2], sites.get(index)[3], sites.get(index)[0]);
+       //     WebBadger connectingTo = new WebBadger();
+      //      connectingTo.Badger(sites.get(index)[4], sites.get(index)[2], sites.get(index)[3], sites.get(index)[0]);
 
             //PARSE .CSV REPORT
-            ModifyBadgerReports report = new ModifyBadgerReports(connectingTo.getPath(), sites.get(index)[0]);
-            report.processBadger();
+        //    ModifyBadgerReports report = new ModifyBadgerReports(connectingTo.getPath(), sites.get(index)[0]);
+        //    report.processBadger();
 
             //CONNECT TO DB
-            ConnectingToDB conn = new ConnectingToDB(sites.get(index)[0]);
+          //  ConnectingToDB conn = new ConnectingToDB(sites.get(index)[0]);
 
             //DELETE EXISTING DATA
-           DeleteFromTable.deleteFromTable(conn, "beacon");
+         //  DeleteFromTable.deleteFromTable(conn, "beacon");
 
-            //INSERT NETWORK REPORT INTO TABLE
-            InsertIntoTable.beacon(conn, report.getModifiedNetworkReport());
+         //   //INSERT NETWORK REPORT INTO TABLE
+          //  InsertIntoTable.beacon(conn, report.getModifiedNetworkReport());
 
             //RUN PROCEDURE
-            RunProcedure.runNetwork_Analysis_Badger(conn);
-           conn.close();
+         //   RunProcedure.runNetwork_Analysis_Badger(conn);
+       //    conn.close();
 
-            HttpURLConnection connection;
 
-            URL url = new URL("http://localhost:8080/api/mail/send");
-
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setConnectTimeout(15000);
-
-            int status = connection.getResponseCode();
-            System.out.println(status);
+            RestClient r = new RestClient();
+            r.getJsonEmployee();
 
         } else if (sites.get(index)[5].toLowerCase().trim().equals("sensus")) {
 
@@ -89,7 +83,7 @@ public class Main2 {
             InsertIntoTable.sensusimr(conn, report.getModifiedNetworkReport());
 
             //RUN PROCEDURE
-            RunProcedure.runNetwork_Analysis_Sensus(conn);
+        //    RunProcedure.runNetwork_Analysis_Sensus(conn);
 
             conn.close();
         }

@@ -1,27 +1,26 @@
 package com.stiserver.webAutomation.bLogic;
+import ch.qos.logback.core.net.server.Client;
 import com.opencsv.CSVReader;
 
-import com.stiserver.webAutomation.bLogic.ModifyBadgerReports;
-import com.stiserver.webAutomation.bLogic.ModifySensusReports;
-import com.stiserver.webAutomation.bLogic.WebBadger;
-import com.stiserver.webAutomation.bLogic.WebSensus;
+import com.stiserver.webAutomation.controller.ApiController;
 import com.stiserver.webAutomation.service.crud.DeleteFromTable;
 import com.stiserver.webAutomation.service.crud.InsertIntoTable;
 import com.stiserver.webAutomation.service.crud.RunProcedure;
 import com.stiserver.webAutomation.utils.ConnectingToDB;
+import org.springframework.boot.autoconfigure.elasticsearch.rest.RestClientBuilderCustomizer;
 
 import java.io.FileReader;
-import java.sql.SQLException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.concurrent.CompletableFuture;
 
-public class Main {
-    public static void main(String[] args) throws Exception {
+public class Main2 {
+    public static void main2() throws Exception {
 
         //Load all sites from .csv
         ArrayList<String[]> sites = new ArrayList<>();
 
-        try (CSVReader reader = new CSVReader((new FileReader("src\\sites.csv")))) {
+        try (CSVReader reader = new CSVReader((new FileReader("C:\\Users\\UMS\\IdeaProjects\\webAutomation\\webAutomation\\src\\main\\java\\com\\stiserver\\webAutomation\\bLogic\\sites.csv")))) {
             String[] nextLine;
             while ((nextLine = reader.readNext()) != null) {
                 sites.add(nextLine);
@@ -30,12 +29,13 @@ public class Main {
         for (int i = 1; i < sites.size(); i++) {
             //  run(sites, i);
         }
-        run(sites, 2);
+        run(sites, 5);
     }
 
     private static void run(ArrayList<String[]> sites, int index) throws Exception {
 
         if (sites.get(index)[5].toLowerCase().trim().equals("badger")) {
+
 
             //GET REPORTS FOR WEB
             WebBadger connectingTo = new WebBadger();
@@ -49,17 +49,25 @@ public class Main {
             ConnectingToDB conn = new ConnectingToDB(sites.get(index)[0]);
 
             //DELETE EXISTING DATA
-            DeleteFromTable.deleteFromTable(conn, "beacon");
+           DeleteFromTable.deleteFromTable(conn, "beacon");
 
             //INSERT NETWORK REPORT INTO TABLE
             InsertIntoTable.beacon(conn, report.getModifiedNetworkReport());
 
             //RUN PROCEDURE
             RunProcedure.runNetwork_Analysis_Badger(conn);
+           conn.close();
 
+            HttpURLConnection connection;
 
+            URL url = new URL("http://localhost:8080/api/mail/send");
 
-            conn.close();
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(15000);
+
+            int status = connection.getResponseCode();
+            System.out.println(status);
 
         } else if (sites.get(index)[5].toLowerCase().trim().equals("sensus")) {
 

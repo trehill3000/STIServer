@@ -1,4 +1,5 @@
 package com.stiserver.webAutomation.bLogic;
+
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
 import com.stiserver.webAutomation.model.SensusNetworkReport;
@@ -50,7 +51,7 @@ public class ModifySensusReports {
      * USED TO READ .CSV FILE
      * Get List<String[]> allRows</String[]>
      * Will receive new instance allocated in memory of .csv file.
-     * @param path file explorer
+     * @param path     file explorer
      * @param fileName file name
      * @throws IOException e
      */
@@ -70,7 +71,7 @@ public class ModifySensusReports {
     private void editSensusReport() throws IOException {
         CsvReader reader = new CsvReader();
 
-        //EDIT FILE
+        //EDIT REPORT
         allRows = reader.removeColumn(allRows, "City");
         allRows = reader.removeColumn(allRows, "Mode");
 

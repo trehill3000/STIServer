@@ -7,6 +7,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
+
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
@@ -21,6 +22,7 @@ public class WebSensus {
 
     /**
      * Default
+     *
      */
     public WebSensus() {}
 
@@ -35,11 +37,11 @@ public class WebSensus {
         this.username = un;
         this.password = pw;
         this.url = url;
-     //  driver = new FirefoxDriver(getSettings());
-      // login();
-      // getAdditionalReport();
-      // getSensusReport();
-     // driver.close();
+        driver = new FirefoxDriver(getSettings());
+        login();
+       getAdditionalReport();
+       getSensusReport();
+      driver.close();
 
     }
 
@@ -60,8 +62,8 @@ public class WebSensus {
         driver.findElement(By.xpath("//input[@name='_eventId_proceed']")).click();
     }
 
-    /**
-     *  Get file name
+    /** Get file name
+
      */
     private void getSensusReport() throws InterruptedException {
 

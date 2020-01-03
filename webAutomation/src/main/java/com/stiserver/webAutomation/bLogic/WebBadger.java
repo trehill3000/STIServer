@@ -2,7 +2,6 @@ package com.stiserver.webAutomation.bLogic;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -50,11 +49,11 @@ public class WebBadger {
         this.username = un;
         this.password = pw;
         this.siteName = siteName;
-        driver = new FirefoxDriver(getSettings());
-        login();
-        getAdditionalReport();
-        getBadgerReports();
-        driver.close();
+      // driver = new FirefoxDriver(getSettings());
+    //   login();
+   //    getAdditionalReport();
+    //   getBadgerReports();
+    //    driver.close();
     }
 
     /**LOGIN IN

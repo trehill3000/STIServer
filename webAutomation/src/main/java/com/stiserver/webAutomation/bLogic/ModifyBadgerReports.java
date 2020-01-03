@@ -1,12 +1,9 @@
 package com.stiserver.webAutomation.bLogic;
-
-
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
 import com.stiserver.webAutomation.model.BadgerLeakReport;
 import com.stiserver.webAutomation.model.BadgerNetworkReport;
 import com.stiserver.webAutomation.service.CsvReader;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -16,7 +13,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -100,6 +100,7 @@ public class ModifyBadgerReports {
         //WRITE TO THE .CSV FILE
         allRows.forEach(s -> writer.writeAll(Collections.singleton(s)));
         writer.close();
+
     }
 
     /**
@@ -121,7 +122,7 @@ public class ModifyBadgerReports {
         allRows.forEach(s-> s[8] = "PROVISIONED");
 
         //TEST PRINT
-        //allRows.forEach(n -> System.out.println(Arrays.toString(n)));
+      //  allRows.forEach(n -> System.out.println(Arrays.toString(n)));
 
         //https://www.javatpoint.com/java-get-current-date
         //GET CURRENT DATE

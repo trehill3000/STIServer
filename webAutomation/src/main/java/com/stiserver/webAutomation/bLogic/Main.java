@@ -1,10 +1,19 @@
 package com.stiserver.webAutomation.bLogic;
-
 import com.opencsv.CSVReader;
+
+import com.stiserver.webAutomation.bLogic.ModifyBadgerReports;
+import com.stiserver.webAutomation.bLogic.ModifySensusReports;
+import com.stiserver.webAutomation.bLogic.WebBadger;
+import com.stiserver.webAutomation.bLogic.WebSensus;
+import com.stiserver.webAutomation.service.crud.DeleteFromTable;
 import com.stiserver.webAutomation.service.crud.InsertIntoTable;
+import com.stiserver.webAutomation.service.crud.RunProcedure;
 import com.stiserver.webAutomation.utils.ConnectingToDB;
+
 import java.io.FileReader;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -12,16 +21,16 @@ public class Main {
         //Load all sites from .csv
         ArrayList<String[]> sites = new ArrayList<>();
 
-        try (CSVReader reader = new CSVReader((new FileReader("C:/Users/UMS//IdeaProjects//webAutomation//webAutomation//src//main//java//com//stiserver//webAutomation//bLogic/sites.csv")))) {
+        try (CSVReader reader = new CSVReader((new FileReader("src\\sites.csv")))) {
             String[] nextLine;
             while ((nextLine = reader.readNext()) != null) {
                 sites.add(nextLine);
             }
         }
         for (int i = 1; i < sites.size(); i++) {
-       //  run(sites, i);
+            //  run(sites, i);
         }
-        run(sites, 3);
+        run(sites, 2);
     }
 
     private static void run(ArrayList<String[]> sites, int index) throws Exception {
@@ -37,12 +46,20 @@ public class Main {
             report.processBadger();
 
             //CONNECT TO DB
-             ConnectingToDB conn = new ConnectingToDB(sites.get(index)[0]);
+            ConnectingToDB conn = new ConnectingToDB(sites.get(index)[0]);
+
+            //DELETE EXISTING DATA
+            DeleteFromTable.deleteFromTable(conn, "beacon");
 
             //INSERT NETWORK REPORT INTO TABLE
-             InsertIntoTable.beacon(conn, report.getModifiedNetworkReport());
+            InsertIntoTable.beacon(conn, report.getModifiedNetworkReport());
 
-             conn.close();
+            //RUN PROCEDURE
+            RunProcedure.runNetwork_Analysis_Badger(conn);
+
+
+
+            conn.close();
 
         } else if (sites.get(index)[5].toLowerCase().trim().equals("sensus")) {
 
@@ -54,15 +71,19 @@ public class Main {
             ModifySensusReports report = new ModifySensusReports(connectingTo.getPath(), sites.get(index)[0]);
             report.processSensus();
 
-            //INSERT NETWORK REPORT INTO TABLE
-
             //CONNECT TO DB
             ConnectingToDB conn = new ConnectingToDB(sites.get(index)[0]);
 
+            //DELETE EXISTING DATA
+            DeleteFromTable.deleteFromTable(conn, "Sensusimr");
+
+            //INSERT NETWORK REPORT INTO TABLE
             InsertIntoTable.sensusimr(conn, report.getModifiedNetworkReport());
 
-            conn.close();
+            //RUN PROCEDURE
+            RunProcedure.runNetwork_Analysis_Sensus(conn);
 
+            conn.close();
         }
     }
 }

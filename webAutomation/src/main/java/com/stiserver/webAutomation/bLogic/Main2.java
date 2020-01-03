@@ -39,29 +39,29 @@ public class Main2 {
 
 
             //GET REPORTS FOR WEB
-       //     WebBadger connectingTo = new WebBadger();
-      //      connectingTo.Badger(sites.get(index)[4], sites.get(index)[2], sites.get(index)[3], sites.get(index)[0]);
+            WebBadger connectingTo = new WebBadger();
+            connectingTo.Badger(sites.get(index)[4], sites.get(index)[2], sites.get(index)[3], sites.get(index)[0]);
 
             //PARSE .CSV REPORT
-        //    ModifyBadgerReports report = new ModifyBadgerReports(connectingTo.getPath(), sites.get(index)[0]);
-        //    report.processBadger();
+            ModifyBadgerReports report = new ModifyBadgerReports(connectingTo.getPath(), sites.get(index)[0]);
+            report.processBadger();
 
             //CONNECT TO DB
-          //  ConnectingToDB conn = new ConnectingToDB(sites.get(index)[0]);
+            ConnectingToDB conn = new ConnectingToDB(sites.get(index)[0]);
 
             //DELETE EXISTING DATA
-         //  DeleteFromTable.deleteFromTable(conn, "beacon");
+            DeleteFromTable.deleteFromTable(conn, "beacon");
 
-         //   //INSERT NETWORK REPORT INTO TABLE
-          //  InsertIntoTable.beacon(conn, report.getModifiedNetworkReport());
+            //INSERT NETWORK REPORT INTO TABLE
+            InsertIntoTable.beacon(conn, report.getModifiedNetworkReport());
 
             //RUN PROCEDURE
-         //   RunProcedure.runNetwork_Analysis_Badger(conn);
-       //    conn.close();
+            RunProcedure.runNetwork_Analysis_Badger(conn);
+           conn.close();
 
-
+           //LET EMAIL SERVER KNOW THE NA IS COMPLETE
             RestClient r = new RestClient();
-            r.getJsonEmployee();
+            r.sendNetworkAnalysis(sites.get(index)[0], report.getModifiedNetworkReport());
 
         } else if (sites.get(index)[5].toLowerCase().trim().equals("sensus")) {
 

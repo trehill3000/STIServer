@@ -1,4 +1,4 @@
-package com.stiserver.webAutomation.service.crud;
+package com.stiserver.webAutomation.service.DB_crud;
 
 import com.stiserver.webAutomation.utils.ConnectingToDB;
 import java.sql.CallableStatement;

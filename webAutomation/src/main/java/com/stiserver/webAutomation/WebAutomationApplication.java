@@ -1,10 +1,13 @@
-package com.stiserver.webAutomation.bLogic;
+package com.stiserver.webAutomation;
 
 import com.opencsv.CSVReader;
-import com.stiserver.webAutomation.service.RestClient;
-import com.stiserver.webAutomation.service.crud.DeleteFromTable;
-import com.stiserver.webAutomation.service.crud.InsertIntoTable;
-import com.stiserver.webAutomation.service.crud.RunProcedure;
+import com.stiserver.webAutomation.bLogic.ModifyBadgerReports;
+import com.stiserver.webAutomation.bLogic.ModifySensusReports;
+import com.stiserver.webAutomation.bLogic.WebBadger;
+import com.stiserver.webAutomation.bLogic.WebSensus;
+import com.stiserver.webAutomation.service.DB_crud.DeleteFromTable;
+import com.stiserver.webAutomation.service.DB_crud.InsertIntoTable;
+import com.stiserver.webAutomation.service.DB_crud.RunProcedure;
 import com.stiserver.webAutomation.utils.ConnectingToDB;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -42,7 +45,6 @@ public class WebAutomationApplication {
 
 		if (sites.get(index)[5].toLowerCase().trim().equals("badger")) {
 
-
 			//GET REPORTS FOR WEB
 			WebBadger connectingTo = new WebBadger();
 			connectingTo.Badger(sites.get(index)[4], sites.get(index)[2], sites.get(index)[3], sites.get(index)[0]);
@@ -65,8 +67,8 @@ public class WebAutomationApplication {
 			conn.close();
 
 			//LET EMAIL SERVER KNOW THE NA IS COMPLETE
-			RestClient r = new RestClient();
-			r.sendNetworkAnalysis(sites.get(index)[0], report.getModifiedNetworkReport());
+			//RestClient r = new RestClient();
+			//r.sendNetworkAnalysis(sites.get(index)[0], report.getModifiedNetworkReport());
 
 		} else if (sites.get(index)[5].toLowerCase().trim().equals("sensus")) {
 
@@ -93,5 +95,4 @@ public class WebAutomationApplication {
 			conn.close();
 		}
 	}
-
 }

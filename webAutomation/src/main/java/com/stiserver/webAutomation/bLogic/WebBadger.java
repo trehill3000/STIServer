@@ -51,9 +51,9 @@ public class WebBadger {
         this.password = pw;
         this.siteName = siteName;
        driver = new FirefoxDriver(getSettings());
-        login();
-   //     getAdditionalReport();
-        getBadgerReports();
+       login();
+      getAdditionalReport();
+      getBadgerReports();
         driver.close();
     }
 

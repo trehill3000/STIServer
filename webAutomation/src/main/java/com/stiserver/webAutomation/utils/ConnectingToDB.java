@@ -14,6 +14,7 @@ public class ConnectingToDB
     private Connection conn; //Final connection for this login. Will be used and passed/referenced in all classes.
 
     private boolean isConnected = false;
+
     /**
      * Used to create empty class for use of getter methods.
      */
@@ -25,7 +26,6 @@ public class ConnectingToDB
      * Attempts to connect to DB.
      * Take the data from login.fxml and connect to DB
      * @param username username
-     * @throws Exception not connected.
      */
     public ConnectingToDB(String username) throws SQLException, ClassNotFoundException {
         Class.forName("oracle.jdbc.driver.OracleDriver");

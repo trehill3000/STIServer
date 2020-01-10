@@ -14,6 +14,10 @@ public class BadgerNetworkReport implements Report {
         this.file = file;
     }
 
+    public BadgerNetworkReport() {
+
+    }
+
     public File getFile() {
         return file;
     }

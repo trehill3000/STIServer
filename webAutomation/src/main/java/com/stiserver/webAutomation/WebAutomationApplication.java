@@ -5,6 +5,7 @@ import com.stiserver.webAutomation.bLogic.ModifyBadgerReports;
 import com.stiserver.webAutomation.bLogic.ModifySensusReports;
 import com.stiserver.webAutomation.bLogic.WebBadger;
 import com.stiserver.webAutomation.bLogic.WebSensus;
+import com.stiserver.webAutomation.model.BadgerNetworkReport;
 import com.stiserver.webAutomation.service.DB_crud.DeleteFromTable;
 import com.stiserver.webAutomation.service.DB_crud.InsertIntoTable;
 import com.stiserver.webAutomation.service.DB_crud.RunProcedure;
@@ -37,9 +38,9 @@ public class WebAutomationApplication {
 			}
 		}
 		for (int i = 1; i < sites.size(); i++) {
-			 // run(sites, i);
+			  run(sites, i);
 		}
-		run(sites, 1);
+	//	run(sites, 1);
 	}
 
 	private static void run(ArrayList<String[]> sites, int index) throws Exception {
@@ -48,7 +49,7 @@ public class WebAutomationApplication {
 
 			//GET NETWORK REPORTS FOR WEB
 			WebBadger connectingTo = new WebBadger();
-			connectingTo.Badger(sites.get(index)[4], sites.get(index)[2], sites.get(index)[3], sites.get(index)[0]);
+			connectingTo.Badger(sites.get(index)[4], sites.get(index)[2], sites.get(index)[3], sites.get(index)[1]);
 
 			//PARSE .CSV NETWORK REPORT
 			ModifyBadgerReports report = new ModifyBadgerReports(connectingTo.getPath(), sites.get(index)[0]);
@@ -58,7 +59,7 @@ public class WebAutomationApplication {
 			ConnectingToDB conn = new ConnectingToDB(sites.get(index)[0]);
 
 			//DELETE EXISTING DATA
-			DeleteFromTable.deleteFromTable(conn, "beacon");
+			DeleteFromTable.deleteFromTable(conn, "Badger");
 
 			//INSERT NETWORK REPORT INTO TABLE
 			InsertIntoTable.beacon(conn, report.getModifiedNetworkReport());
@@ -67,9 +68,10 @@ public class WebAutomationApplication {
 			RunProcedure.runNetwork_Analysis_Badger(conn);
 			conn.close();
 
-	//		//LET EMAIL SERVER KNOW THE NA IS COMPLETE
-		//	RestClient r = new RestClient();
-		//	r.sendNetworkAnalysis(sites.get(index)[0], report.getModifiedNetworkReport());
+
+			//		//LET EMAIL SERVER KNOW THE NA IS COMPLETE
+			RestClient r = new RestClient();
+			r.sendNetworkAnalysis(sites.get(index)[0], new BadgerNetworkReport());
 
 		} else if (sites.get(index)[5].toLowerCase().trim().equals("sensus")) {
 

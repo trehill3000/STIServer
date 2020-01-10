@@ -21,12 +21,11 @@ public class RestClient {
      */
     public void sendNetworkAnalysis(String site, Report report) {
 
-        String REST_URI = "http://localhost:8080/api/mail/send";
+        String REST_URI = "api/mail/send/{site}/{report}";
         client
-                .target(REST_URI)
-                .path(site).path(report.getName())
-                .request(MediaType.APPLICATION_JSON)
-                .get(String.class);
+            .target(REST_URI)
+            .path(site).path(report.getName())
+            .request(MediaType.APPLICATION_JSON)
+            .get(String.class);
     }
 }
-

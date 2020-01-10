@@ -41,7 +41,7 @@ public class BadgerNetworkReport implements Report {
 
     @Override
     public String getName() {
-        return file.getName();
+        return "BadgerNetworkReport";
     }
 
     @Override

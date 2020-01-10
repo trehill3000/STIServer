@@ -36,7 +36,7 @@ public class BadgerLeakReport implements Report {
 
     @Override
     public String getName() {
-        return file.getName();
+        return "BadgerLeakReport";
     }
 
     @Override

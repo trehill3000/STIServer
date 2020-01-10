@@ -36,7 +36,7 @@ public class SensusNetworkReport implements Report{
 
     @Override
     public String getName() {
-        return file.getName();
+        return "SensusNetworkReport";
     }
 
     @Override

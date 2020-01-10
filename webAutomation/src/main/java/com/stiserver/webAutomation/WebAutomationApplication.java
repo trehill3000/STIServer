@@ -38,9 +38,9 @@ public class WebAutomationApplication {
 			}
 		}
 		for (int i = 1; i < sites.size(); i++) {
-			  run(sites, i);
+			//  run(sites, i);
 		}
-	//	run(sites, 1);
+		run(sites, 1);
 	}
 
 	private static void run(ArrayList<String[]> sites, int index) throws Exception {
@@ -68,8 +68,7 @@ public class WebAutomationApplication {
 			RunProcedure.runNetwork_Analysis_Badger(conn);
 			conn.close();
 
-
-			//		//LET EMAIL SERVER KNOW THE NA IS COMPLETE
+			//LET EMAIL SERVER KNOW THE NA IS COMPLETE
 			RestClient r = new RestClient();
 			r.sendNetworkAnalysis(sites.get(index)[0], new BadgerNetworkReport());
 

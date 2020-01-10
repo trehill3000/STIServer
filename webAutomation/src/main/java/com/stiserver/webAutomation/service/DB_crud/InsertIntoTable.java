@@ -32,7 +32,7 @@ public class InsertIntoTable {
 
         //INSERT INTO DB //https://stackify.com/streams-guide-java-8/
         //https://www.boraji.com/jdbc-batch-insert-example
-        System.out.println("Inserting records into the table...");
+        System.out.println("INSERTING "+data.size() +" records into the table...");
 
         String INSERT_SQL = "INSERT INTO BEACON "
                 + "(MIU,LAST_READ_DATE,READING,SHIP_DATE,TYPE,FIRMWARE_VERSION,LAST_MESSAGE_DATE,ACTIVATION_DATE,REPORT,METER_KEY) VALUES (?,?,?,?,?,?,?,?,?,?)";
@@ -58,7 +58,7 @@ public class InsertIntoTable {
                 stmt.addBatch();
 
                 //Execute batch of 1000 records
-                if (i % 1000 == 0) {
+                if (i % 2000 == 0) {
                     stmt.executeBatch();
                     conn.commit();
                     System.out.println("Batch " + (counter++) + " executed successfully");
@@ -67,7 +67,7 @@ public class InsertIntoTable {
             //execute final batch
             stmt.executeBatch();
             conn.commit();
-            System.out.println("Final batch executed successfully");
+            System.out.println("Final batch executed successfully\n");
         } catch (SQLException e) {
             e.printStackTrace();
             try {
@@ -118,7 +118,7 @@ public class InsertIntoTable {
                 stmt.addBatch();
 
                 //Execute batch of 1000 records
-                if (i % 1000 == 0) {
+                if (i % 1050 == 0) {
                     stmt.executeBatch();
                     conn.commit();
                     System.out.println("Batch " + (counter++) + " executed successfully");

@@ -14,12 +14,12 @@ public class DeleteFromTable {
      */
     public static void deleteFromTable(ConnectingToDB conn, String table) throws SQLException {
 
-        System.out.println("Deleting from "+ table + " table....");
+        System.out.println("\nDELETE FROM "+ table + " table....");
 
         try(Statement stmt = conn.getConnection().createStatement()) {
             String sql = "DELETE FROM " + table;
             stmt.executeUpdate(sql);
-            System.out.println("Delete executed successfully");
+            System.out.println("DELETE executed successfully");
         }
         catch (SQLException e) {
             e.printStackTrace();

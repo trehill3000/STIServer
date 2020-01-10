@@ -8,6 +8,7 @@ import com.stiserver.webAutomation.bLogic.WebSensus;
 import com.stiserver.webAutomation.service.DB_crud.DeleteFromTable;
 import com.stiserver.webAutomation.service.DB_crud.InsertIntoTable;
 import com.stiserver.webAutomation.service.DB_crud.RunProcedure;
+import com.stiserver.webAutomation.service.RestClient;
 import com.stiserver.webAutomation.utils.ConnectingToDB;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -36,20 +37,20 @@ public class WebAutomationApplication {
 			}
 		}
 		for (int i = 1; i < sites.size(); i++) {
-			//  run(sites, i);
+			 // run(sites, i);
 		}
-		run(sites, 2);
+		run(sites, 1);
 	}
 
 	private static void run(ArrayList<String[]> sites, int index) throws Exception {
 
 		if (sites.get(index)[5].toLowerCase().trim().equals("badger")) {
 
-			//GET REPORTS FOR WEB
+			//GET NETWORK REPORTS FOR WEB
 			WebBadger connectingTo = new WebBadger();
 			connectingTo.Badger(sites.get(index)[4], sites.get(index)[2], sites.get(index)[3], sites.get(index)[0]);
 
-			//PARSE .CSV REPORT
+			//PARSE .CSV NETWORK REPORT
 			ModifyBadgerReports report = new ModifyBadgerReports(connectingTo.getPath(), sites.get(index)[0]);
 			report.processBadger();
 
@@ -66,17 +67,17 @@ public class WebAutomationApplication {
 			RunProcedure.runNetwork_Analysis_Badger(conn);
 			conn.close();
 
-			//LET EMAIL SERVER KNOW THE NA IS COMPLETE
-			//RestClient r = new RestClient();
-			//r.sendNetworkAnalysis(sites.get(index)[0], report.getModifiedNetworkReport());
+	//		//LET EMAIL SERVER KNOW THE NA IS COMPLETE
+		//	RestClient r = new RestClient();
+		//	r.sendNetworkAnalysis(sites.get(index)[0], report.getModifiedNetworkReport());
 
 		} else if (sites.get(index)[5].toLowerCase().trim().equals("sensus")) {
 
-			//GET REPORTS FOR WEB
+			//GET NETWORK REPORTS FOR WEB
 			WebSensus connectingTo = new WebSensus();
 			connectingTo.sensus(sites.get(index)[4], sites.get(index)[2], sites.get(index)[3], sites.get(index)[1]);
 
-			//PARSE .CSV REPORT
+			//PARSE .CSV NETWORK REPORT
 			ModifySensusReports report = new ModifySensusReports(connectingTo.getPath(), sites.get(index)[0]);
 			report.processSensus();
 
@@ -90,7 +91,7 @@ public class WebAutomationApplication {
 			InsertIntoTable.sensusimr(conn, report.getModifiedNetworkReport());
 
 			//RUN PROCEDURE
-			//    RunProcedure.runNetwork_Analysis_Sensus(conn);
+			RunProcedure.runNetwork_Analysis_Sensus(conn);
 
 			conn.close();
 		}

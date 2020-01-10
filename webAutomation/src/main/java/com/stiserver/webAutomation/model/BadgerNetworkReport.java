@@ -10,6 +10,8 @@ public class BadgerNetworkReport implements Report {
     public BadgerNetworkReport(File file, List<String[]> data){
         this.file = file;
         this.data = data;
+    }public BadgerNetworkReport(File file){
+        this.file = file;
     }
 
     public File getFile() {

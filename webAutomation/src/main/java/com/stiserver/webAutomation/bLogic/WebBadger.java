@@ -50,12 +50,13 @@ public class WebBadger {
         this.username = un;
         this.password = pw;
         this.siteName = siteName;
-       driver = new FirefoxDriver(getSettings());
-       login();
-      getAdditionalReport();
-      getBadgerReports();
-        driver.close();
+    //    driver = new FirefoxDriver(getSettings());
+    //  login();
+     // getAdditionalReport();
+    //  getBadgerReports();
+   //     driver.close();
     }
+
 
     /**LOGIN IN
      *
@@ -96,6 +97,7 @@ public class WebBadger {
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
         Thread.sleep(3000);
         driver.findElement(By.id("export_result_url")).click();
+        Thread.sleep(2000);
 
         //GET NEXT REPORT
         driver.navigate().refresh();

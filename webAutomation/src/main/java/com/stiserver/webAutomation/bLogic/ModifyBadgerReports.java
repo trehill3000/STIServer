@@ -4,6 +4,7 @@ import com.opencsv.exceptions.CsvValidationException;
 import com.stiserver.webAutomation.model.BadgerLeakReport;
 import com.stiserver.webAutomation.model.BadgerNetworkReport;
 import com.stiserver.webAutomation.service.CsvReader;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -33,7 +34,7 @@ public class ModifyBadgerReports {
     private File proReport;
     private File modifiedReport;
     private String siteName;
-    private List<String[]> allRows = new ArrayList<>();
+    private List<String[]> data;
 
     /**
      * Primarley used for Badger Report.
@@ -48,11 +49,21 @@ public class ModifyBadgerReports {
      * @throws IOException e
      */
     public void processBadger() throws IOException, ParseException, CsvValidationException {
+
+        //SET PRE AND PRO FILES
         setBadgerFiles();
-        readCsv(path, preProReport.getName());
-        editPreProReport();
-        readCsv(path, proReport.getName());
-        editProReport();
+
+        //READ PRE REPORT
+        List<String[]> prePro = readCsv(path, preProReport.getName());
+        prePro = editPreProReport(prePro);
+
+
+        //READ PRO REPORT
+        List<String[]> pro = readCsv(path, proReport.getName());
+        pro = editProReport(pro);
+
+        //WRITE LIST TO LOCATION
+        writeTo(prePro, pro);
     }
 
     /**
@@ -62,21 +73,37 @@ public class ModifyBadgerReports {
      * @param path     file explorer
      * @param fileName file name
      * @throws IOException e
-     */
-    private void readCsv(String path, String fileName) throws IOException, CsvValidationException {
-        CsvReader reader = new CsvReader();
-        allRows = reader.readCsv(new FileReader(path + "\\" + fileName));
+     */ //    private void readCsv(String path, String fileName) throws IOException, CsvValidationException {
+     //   CsvReader reader = new CsvReader();
+    //    allRows = reader.readCsv(new FileReader(path + "\\" + fileName));
 
      //   allRows.forEach(s-> System.out.println(Arrays.toString(s)));
+//    }
+
+    /**
+     * USED TO READ .CSV FILE
+     * Get List<String[]> allRows</String[]>
+     * Will receive new instance allocated in memory of .csv file.
+     * @param path     file explorer
+     * @param fileName file name
+     * @throws IOException e
+     */
+    private List<String[]> readCsv(String path, String fileName) throws IOException, CsvValidationException {
+        CsvReader reader = new CsvReader();
+       return reader.readCsv(new FileReader(path + "\\" + fileName));
+
+        //   allRows.forEach(s-> System.out.println(Arrays.toString(s)));
     }
+
 
     /**
      * REMOVE COLUMN "Encoder ID".
      * Parse .csv and abstract data to map to assist with removing the "encoder id" column by finding it by name.
      * Take map and stitch it back together for CSV WRITER
      * @throws IOException e
+     * @return
      */
-    private void editPreProReport() throws IOException {
+    private List<String[]> editPreProReport(List<String[]> allRows) throws IOException {
 
         CsvReader reader = new CsvReader();
 
@@ -89,18 +116,9 @@ public class ModifyBadgerReports {
             allRows.get(i)[8] = "PRE PROVISIONED";
         }
         //TEST PRINT
-     //   allRows.forEach(n -> System.out.println(Arrays.toString(n)));
+        //   allRows.forEach(n -> System.out.println(Arrays.toString(n)));
 
-        //GET CURRENT DATE
-        SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
-
-        //WRITE TO THE .CSV FILE https://www.javatpoint.com/java-get-current-date
-        CSVWriter writer = new CSVWriter(new FileWriter("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\NETWORK ANALYSIS\\MODIFIED REPORTS\\"+ siteName + "_Network_Analysis_"+ formatter.format(new Date()) +".csv" ,true));
-
-        //WRITE TO THE .CSV FILE
-        allRows.forEach(s -> writer.writeAll(Collections.singleton(s)));
-        writer.close();
-
+        return  allRows;
     }
 
     /**
@@ -109,8 +127,7 @@ public class ModifyBadgerReports {
      * Take map and stitch it back together for CSV WRITER
      * @throws IOException e
      */
-    private void editProReport() throws IOException {
-
+    private List<String[]> editProReport(List<String[]> allRows) throws IOException {
         CsvReader reader = new CsvReader();
 
         allRows = reader.removeColumn(allRows, "Unit");
@@ -118,24 +135,47 @@ public class ModifyBadgerReports {
         //REMOVE HEADER FOR CONCAT TO PRE PRO REPORT
         allRows.remove(0);
 
+
         //CUSTOM EDIT TO FILE. ADD PRE PROVISIONED TO THE END OF FILE.
         allRows.forEach(s-> s[8] = "PROVISIONED");
 
         //TEST PRINT
       //  allRows.forEach(n -> System.out.println(Arrays.toString(n)));
 
+        return allRows;
+    }
+
+
+    /**
+     * WRITE REPORTS TOO .CSV FILE
+     * @param prePro PRE PROVISIONED REPORT
+     * @param pro PROVISIOEND REPORT
+     * @throws IOException E
+     */
+    private void writeTo(List<String[]> prePro, List<String[]> pro) throws IOException {
+
+        List<String[]> allRows = new ArrayList<>();
+
+        allRows.addAll(prePro);
+        allRows.addAll(pro);
+
+        System.out.println(allRows.size());
+
         //https://www.javatpoint.com/java-get-current-date
         //GET CURRENT DATE
         SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
 
         //WRITE TO THE .CSV FILE
-        CSVWriter writer = new CSVWriter(new FileWriter("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\NETWORK ANALYSIS\\MODIFIED REPORTS\\"+ siteName + "_Network_Analysis_"+formatter.format(new Date()) +".csv" ,true));
+        CSVWriter writer = new CSVWriter(new FileWriter("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\NETWORK ANALYSIS\\MODIFIED REPORTS\\"+ siteName + "_Network_Analysis_"+ formatter.format(new Date()) +".csv" ,true));
 
         //WRITE TO THE .CSV FILE
         allRows.forEach(s -> writer.writeAll(Collections.singleton(s)));
 
         modifiedReport = new File("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\NETWORK ANALYSIS\\MODIFIED REPORTS\\"+ siteName + "_Network_Analysis_"+formatter.format(new Date()) +".csv");
+
+        data = allRows;
         writer.close();
+
     }
 
     /**
@@ -211,8 +251,9 @@ public class ModifyBadgerReports {
      */
     public BadgerNetworkReport getModifiedNetworkReport() {
         //allRows.forEach(e-> System.out.println(Arrays.toString(e)));
-
-        return new BadgerNetworkReport(modifiedReport, allRows);
+      //  System.out.println(allRows.size());
+        List<String[]> allRows = null;
+        return new BadgerNetworkReport(modifiedReport, data);
     }
 
     public BadgerLeakReport getModifiedLeakReport() {

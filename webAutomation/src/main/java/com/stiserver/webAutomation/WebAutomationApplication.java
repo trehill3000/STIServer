@@ -56,21 +56,22 @@ public class WebAutomationApplication {
 			report.processBadger();
 
 			//CONNECT TO DB
-			ConnectingToDB conn = new ConnectingToDB(sites.get(index)[0]);
+		//	ConnectingToDB conn = new ConnectingToDB(sites.get(index)[0]);
 
 			//DELETE EXISTING DATA
-			DeleteFromTable.deleteFromTable(conn, "Badger");
+		//	DeleteFromTable.deleteFromTable(conn, "Badger");
 
 			//INSERT NETWORK REPORT INTO TABLE
-			InsertIntoTable.beacon(conn, report.getModifiedNetworkReport());
+			//InsertIntoTable.beacon(conn, report.getModifiedNetworkReport());
 
 			//RUN PROCEDURE
-			RunProcedure.runNetwork_Analysis_Badger(conn);
-			conn.close();
+		//	RunProcedure.runNetwork_Analysis_Badger(conn);
+		//	conn.close();
 
 			//LET EMAIL SERVER KNOW THE NA IS COMPLETE
 			RestClient r = new RestClient();
-			r.sendNetworkAnalysis(sites.get(index)[0], new BadgerNetworkReport());
+			r.sendNetworkAnalysis(sites.get(index)[0], report.getModifiedNetworkReport());
+
 
 		} else if (sites.get(index)[5].toLowerCase().trim().equals("sensus")) {
 

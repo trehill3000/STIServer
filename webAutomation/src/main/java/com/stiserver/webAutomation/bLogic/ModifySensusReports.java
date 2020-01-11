@@ -4,6 +4,7 @@ import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
 import com.stiserver.webAutomation.model.SensusNetworkReport;
 import com.stiserver.webAutomation.service.CsvReader;
+import com.stiserver.webAutomation.service.DirPathFinder;
 
 import java.io.File;
 import java.io.FileReader;
@@ -85,12 +86,13 @@ public class ModifySensusReports {
         SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
 
         //WRITE TO THE .CSV FILE https://www.javatpoint.com/java-get-current-date
-        CSVWriter writer = new CSVWriter(new FileWriter("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\NETWORK ANALYSIS\\MODIFIED REPORTS\\"+ siteName + "_Network_Analysis_"+ formatter.format(new Date()) +".csv" ,true));
+    //    CSVWriter writer = new CSVWriter(new FileWriter("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\NETWORK ANALYSIS\\MODIFIED REPORTS\\"+ siteName + "_Network_Analysis_"+ formatter.format(new Date()) +".csv" ,true));
+        CSVWriter writer = new CSVWriter(new FileWriter(DirPathFinder.networkModPath(siteName) + siteName + "_Network_Analysis_"+ formatter.format(new Date()) +".csv" ,true));
 
         //WRITE TO THE .CSV FILE
         allRows.forEach(s -> writer.writeAll(Collections.singleton(s)));
 
-        modifiedReport = new File("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\NETWORK ANALYSIS\\MODIFIED REPORTS\\" + LocalDate.now() + "_" + "Modified.csv");
+        modifiedReport = new File(DirPathFinder.networkModPath(siteName) + siteName + "_Network_Analysis_"+ formatter.format(new Date()) +".csv");
 
         writer.close();
     }

@@ -6,6 +6,7 @@ import com.stiserver.webAutomation.bLogic.ModifySensusReports;
 import com.stiserver.webAutomation.bLogic.WebBadger;
 import com.stiserver.webAutomation.bLogic.WebSensus;
 import com.stiserver.webAutomation.model.BadgerNetworkReport;
+import com.stiserver.webAutomation.model.SensusNetworkReport;
 import com.stiserver.webAutomation.service.DB_crud.DeleteFromTable;
 import com.stiserver.webAutomation.service.DB_crud.InsertIntoTable;
 import com.stiserver.webAutomation.service.DB_crud.RunProcedure;
@@ -31,7 +32,7 @@ public class WebAutomationApplication {
 		//Load all sites from .csv
 		ArrayList<String[]> sites = new ArrayList<>();
 
-		try (CSVReader reader = new CSVReader((new FileReader("C:\\Users\\UMS\\IdeaProjects\\webAutomation\\webAutomation\\src\\main\\java\\com\\stiserver\\webAutomation\\bLogic\\sites.csv")))) {
+		try (CSVReader reader = new CSVReader((new FileReader("C:\\Users\\UMS\\OneDrive - UMS\\SIServer\\Sites\\sites.csv")))) {
 			String[] nextLine;
 			while ((nextLine = reader.readNext()) != null) {
 				sites.add(nextLine);
@@ -45,6 +46,7 @@ public class WebAutomationApplication {
 
 	private static void run(ArrayList<String[]> sites, int index) throws Exception {
 
+		//BADGER
 		if (sites.get(index)[5].toLowerCase().trim().equals("badger")) {
 
 			//GET NETWORK REPORTS FOR WEB
@@ -70,10 +72,14 @@ public class WebAutomationApplication {
 
 			//LET EMAIL SERVER KNOW THE NA IS COMPLETE
 			RestClient r = new RestClient();
-			r.sendNetworkAnalysis(sites.get(index)[0], report.getModifiedNetworkReport());
+			r.sendReport(sites.get(index)[0], report.getModifiedNetworkReport());
 
+			//SEND LEAK REPORT
+			//r.sendReport(sites.get(index)[0], new BadgerLeakReport());
 
-		} else if (sites.get(index)[5].toLowerCase().trim().equals("sensus")) {
+		}
+		/*SENSUS*/
+		else if (sites.get(index)[5].toLowerCase().trim().equals("sensus")) {
 
 			//GET NETWORK REPORTS FOR WEB
 			WebSensus connectingTo = new WebSensus();
@@ -96,6 +102,13 @@ public class WebAutomationApplication {
 			RunProcedure.runNetwork_Analysis_Sensus(conn);
 
 			conn.close();
+
+			//LET EMAIL SERVER KNOW THE NA IS COMPLETE
+			RestClient c1 = new RestClient();
+			c1.sendReport(sites.get(index)[0], report.getModifiedNetworkReport());
+
+		   //RestClient c2 = new RestClient();
+			//c2.sendReport(sites.get(index)[0], report.getLeakReport());
 		}
 	}
 }

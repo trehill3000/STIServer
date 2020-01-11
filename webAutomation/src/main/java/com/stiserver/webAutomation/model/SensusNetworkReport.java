@@ -13,6 +13,10 @@ public class SensusNetworkReport implements Report{
         this.data = data;
     }
 
+    public SensusNetworkReport() {
+
+    }
+
     public File getFile() {
         return file;
     }

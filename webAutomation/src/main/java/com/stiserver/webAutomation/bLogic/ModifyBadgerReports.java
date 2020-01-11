@@ -4,6 +4,7 @@ import com.opencsv.exceptions.CsvValidationException;
 import com.stiserver.webAutomation.model.BadgerLeakReport;
 import com.stiserver.webAutomation.model.BadgerNetworkReport;
 import com.stiserver.webAutomation.service.CsvReader;
+import com.stiserver.webAutomation.service.DirPathFinder;
 
 import java.io.File;
 import java.io.FileReader;
@@ -73,20 +74,6 @@ public class ModifyBadgerReports {
      * @param path     file explorer
      * @param fileName file name
      * @throws IOException e
-     */ //    private void readCsv(String path, String fileName) throws IOException, CsvValidationException {
-     //   CsvReader reader = new CsvReader();
-    //    allRows = reader.readCsv(new FileReader(path + "\\" + fileName));
-
-     //   allRows.forEach(s-> System.out.println(Arrays.toString(s)));
-//    }
-
-    /**
-     * USED TO READ .CSV FILE
-     * Get List<String[]> allRows</String[]>
-     * Will receive new instance allocated in memory of .csv file.
-     * @param path     file explorer
-     * @param fileName file name
-     * @throws IOException e
      */
     private List<String[]> readCsv(String path, String fileName) throws IOException, CsvValidationException {
         CsvReader reader = new CsvReader();
@@ -95,13 +82,12 @@ public class ModifyBadgerReports {
         //   allRows.forEach(s-> System.out.println(Arrays.toString(s)));
     }
 
-
     /**
      * REMOVE COLUMN "Encoder ID".
      * Parse .csv and abstract data to map to assist with removing the "encoder id" column by finding it by name.
      * Take map and stitch it back together for CSV WRITER
      * @throws IOException e
-     * @return
+     * @return k
      */
     private List<String[]> editPreProReport(List<String[]> allRows) throws IOException {
 
@@ -145,7 +131,6 @@ public class ModifyBadgerReports {
         return allRows;
     }
 
-
     /**
      * WRITE REPORTS TOO .CSV FILE
      * @param prePro PRE PROVISIONED REPORT
@@ -166,12 +151,13 @@ public class ModifyBadgerReports {
         SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
 
         //WRITE TO THE .CSV FILE
-        CSVWriter writer = new CSVWriter(new FileWriter("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\NETWORK ANALYSIS\\MODIFIED REPORTS\\"+ siteName + "_Network_Analysis_"+ formatter.format(new Date()) +".csv" ,true));
-
+       // CSVWriter writer = new CSVWriter(new FileWriter("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\NETWORK ANALYSIS\\MODIFIED REPORTS\\"+ siteName + "_Network_Analysis_"+ formatter.format(new Date()) +".csv" ,true));
+        CSVWriter writer = new CSVWriter(new FileWriter(DirPathFinder.networkModPath(siteName) + siteName + "_Network_Analysis_"+ formatter.format(new Date()) +".csv",true));
         //WRITE TO THE .CSV FILE
         allRows.forEach(s -> writer.writeAll(Collections.singleton(s)));
 
-        modifiedReport = new File("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\NETWORK ANALYSIS\\MODIFIED REPORTS\\"+ siteName + "_Network_Analysis_"+formatter.format(new Date()) +".csv");
+        modifiedReport = new File(DirPathFinder.networkModPath(siteName)+ siteName + "_Network_Analysis_"+formatter.format(new Date()) +".csv");
+        //modifiedReport = new File("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\NETWORK ANALYSIS\\MODIFIED REPORTS\\"+ siteName + "_Network_Analysis_"+formatter.format(new Date()) +".csv");
 
         data = allRows;
         writer.close();

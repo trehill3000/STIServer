@@ -152,11 +152,11 @@ public class ModifyBadgerReports {
 
         //WRITE TO THE .CSV FILE
        // CSVWriter writer = new CSVWriter(new FileWriter("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\NETWORK ANALYSIS\\MODIFIED REPORTS\\"+ siteName + "_Network_Analysis_"+ formatter.format(new Date()) +".csv" ,true));
-        CSVWriter writer = new CSVWriter(new FileWriter(DirPathFinder.networkModPath(siteName) + siteName + "_Network_Analysis_"+ formatter.format(new Date()) +".csv",true));
+        CSVWriter writer = new CSVWriter(new FileWriter(DirPathFinder.networkModPath(siteName) + "\\"+siteName + "_Network_Analysis_"+ formatter.format(new Date()) +".csv",true));
         //WRITE TO THE .CSV FILE
         allRows.forEach(s -> writer.writeAll(Collections.singleton(s)));
 
-        modifiedReport = new File(DirPathFinder.networkModPath(siteName)+ siteName + "_Network_Analysis_"+formatter.format(new Date()) +".csv");
+        modifiedReport = new File(DirPathFinder.networkModPath(siteName) + "\\"+siteName + "_Network_Analysis_"+formatter.format(new Date()) +".csv");
         //modifiedReport = new File("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\NETWORK ANALYSIS\\MODIFIED REPORTS\\"+ siteName + "_Network_Analysis_"+formatter.format(new Date()) +".csv");
 
         data = allRows;

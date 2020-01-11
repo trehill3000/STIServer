@@ -50,11 +50,11 @@ public class WebBadger {
         this.username = un;
         this.password = pw;
         this.siteName = siteName;
-        driver = new FirefoxDriver(getSettings());
-      login();
-      getAdditionalReport();
-      getBadgerReports();
-      driver.close();
+    //   driver = new FirefoxDriver(getSettings());
+     // login();
+    //  getAdditionalReport();
+     // getBadgerReports();
+     // driver.close();
     }
 
     /**LOGIN IN

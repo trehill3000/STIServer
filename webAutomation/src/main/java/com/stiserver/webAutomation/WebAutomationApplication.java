@@ -10,6 +10,7 @@ import com.stiserver.webAutomation.model.SensusNetworkReport;
 import com.stiserver.webAutomation.service.DB_crud.DeleteFromTable;
 import com.stiserver.webAutomation.service.DB_crud.InsertIntoTable;
 import com.stiserver.webAutomation.service.DB_crud.RunProcedure;
+import com.stiserver.webAutomation.service.DirPathFinder;
 import com.stiserver.webAutomation.service.RestClient;
 import com.stiserver.webAutomation.utils.ConnectingToDB;
 import org.springframework.boot.SpringApplication;
@@ -51,7 +52,7 @@ public class WebAutomationApplication {
 
 			//GET NETWORK REPORTS FOR WEB
 			WebBadger connectingTo = new WebBadger();
-			connectingTo.Badger(sites.get(index)[4], sites.get(index)[2], sites.get(index)[3], sites.get(index)[1]);
+			connectingTo.Badger(DirPathFinder.networkDownloadPath(sites.get(index)[0]), sites.get(index)[2], sites.get(index)[3], sites.get(index)[1]);
 
 			//PARSE .CSV NETWORK REPORT
 			ModifyBadgerReports report = new ModifyBadgerReports(connectingTo.getPath(), sites.get(index)[0]);
@@ -83,7 +84,7 @@ public class WebAutomationApplication {
 
 			//GET NETWORK REPORTS FOR WEB
 			WebSensus connectingTo = new WebSensus();
-			connectingTo.sensus(sites.get(index)[4], sites.get(index)[2], sites.get(index)[3], sites.get(index)[1]);
+			connectingTo.sensus(DirPathFinder.networkDownloadPath(sites.get(index)[0]), sites.get(index)[2], sites.get(index)[3], sites.get(index)[1]);
 
 			//PARSE .CSV NETWORK REPORT
 			ModifySensusReports report = new ModifySensusReports(connectingTo.getPath(), sites.get(index)[0]);

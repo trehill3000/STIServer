@@ -10,11 +10,10 @@ public class DirPathFinder {
     public static String networkDownloadPath(String siteName){
         return "C:\\Users\\UMS\\OneDrive - UMS\\SIServer\\Sites\\Active\\"+siteName+"\\Network Analysis\\Downloaded Reports"; }
 
-    public static String networkModPath(String sitename){
+    public static String networkModPath(String sitename) {
 
-        return "C:\\Users\\UMS\\OneDrive - UMS\\SIServer\\Sites\\Active\\" +sitename+"\\Network Analysis\\Modified Reports";
+        return "C:\\Users\\UMS\\OneDrive - UMS\\SIServer\\Sites\\Active\\" + sitename + "\\Network Analysis\\Modified Reports";
     }
-
     public static String networkSendPath(String sitename){
 
         return "C:\\Users\\UMS\\OneDrive - UMS\\SIServer\\Sites\\Active\\"+ sitename+"\\Network Analysis\\SEND";

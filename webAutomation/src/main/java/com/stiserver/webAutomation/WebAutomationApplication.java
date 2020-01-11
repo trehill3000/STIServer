@@ -59,13 +59,13 @@ public class WebAutomationApplication {
 		//	ConnectingToDB conn = new ConnectingToDB(sites.get(index)[0]);
 
 			//DELETE EXISTING DATA
-		//	DeleteFromTable.deleteFromTable(conn, "Badger");
+	//		DeleteFromTable.deleteFromTable(conn, "Badger");
 
 			//INSERT NETWORK REPORT INTO TABLE
 			//InsertIntoTable.beacon(conn, report.getModifiedNetworkReport());
 
 			//RUN PROCEDURE
-		//	RunProcedure.runNetwork_Analysis_Badger(conn);
+			//RunProcedure.runNetwork_Analysis_Badger(conn);
 		//	conn.close();
 
 			//LET EMAIL SERVER KNOW THE NA IS COMPLETE

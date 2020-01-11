@@ -19,14 +19,13 @@ public class RestClient {
      private Client client = ClientBuilder.newClient(); //Jersey Client API
 
      /**
-      * SEND SITE NAME AND REPORT TYPE
-      *
-      * @param site   SITE NAME
-      * @param report TYPE OF REPORT
+      * SEND NETWORK ANALYSIS REPORT IS EMAIL AUTOMATED READY
+      * @param site SITE NAME
+      * @param report REPORT NAME
       */
      public void sendNetworkAnalysis(String site, Report report) {
 
-         String REST_URI = "http://localhost:8080/api/mail/send";
+         String REST_URI = "http://localhost:8080/api/email/networkanalysis";
 
          System.out.println(client
                  .target(REST_URI)
@@ -36,4 +35,74 @@ public class RestClient {
                  .get(String.class));
 
      }
+
+     /**
+      * SEND LEAK REPORT IS EMAIL AUTOMATED READY
+      * @param site SITE NAME
+      * @param report REPORT NAME
+      */
+     public void sendLeakReport(String site, Report report){
+
+         String REST_URI = "http://localhost:8080/api/email/leaks";
+
+         System.out.println(client
+                 .target(REST_URI)
+                 .queryParam("site", site)
+                 .queryParam("report", report.getName())
+                 .request(MediaType.APPLICATION_JSON)
+                 .get(String.class));
+
+     }
+
+     /**
+      * SEND BACK FLOW REPORT IS EMAIL AUTOMATED READY
+      * @param site SITE NAME
+      * @param report REPORT NAME
+      */
+     public void sendBackFlowReport(String site, Report report){
+
+         String REST_URI = "http://localhost:8080/api/email/backflow";
+
+         System.out.println(client
+                 .target(REST_URI)
+                 .queryParam("site", site)
+                 .queryParam("report", report.getName())
+                 .request(MediaType.APPLICATION_JSON)
+                 .get(String.class));
+     }
+
+     /**
+      * SEND TAMPER REPORT IS EMAIL AUTOMATED READY
+      * @param site SITE NAME
+      * @param report REPORT NAME
+      */
+     public void sendTamperReport(String site, Report report){
+
+         String REST_URI = "http://localhost:8080/api/email/tamper";
+
+         System.out.println(client
+                 .target(REST_URI)
+                 .queryParam("site", site)
+                 .queryParam("report", report.getName())
+                 .request(MediaType.APPLICATION_JSON)
+                 .get(String.class));
+     }
+
+     /**
+      * SEND ENCODER REPORT IS EMAIL AUTOMATED READY
+      * @param site SITE NAME
+      * @param report REPORT NAME
+      */
+     public void sendEncoderReport(String site, Report report){
+
+         String REST_URI = "http://localhost:8080/api/email/encoder";
+
+         System.out.println(client
+                 .target(REST_URI)
+                 .queryParam("site", site)
+                 .queryParam("report", report.getName())
+                 .request(MediaType.APPLICATION_JSON)
+                 .get(String.class));
+     }
+
  }

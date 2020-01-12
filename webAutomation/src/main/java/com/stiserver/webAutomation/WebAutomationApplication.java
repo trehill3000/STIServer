@@ -48,7 +48,7 @@ public class WebAutomationApplication {
 	private static void run(ArrayList<String[]> sites, int index) throws Exception {
 
 		//BADGER
-		if (sites.get(index)[5].toLowerCase().trim().equals("badger")) {
+		if (sites.get(index)[4].toLowerCase().trim().equals("badger")) {
 
 			//GET NETWORK REPORTS FOR WEB
 			WebBadger connectingTo = new WebBadger();
@@ -80,7 +80,7 @@ public class WebAutomationApplication {
 
 		}
 		/*SENSUS*/
-		else if (sites.get(index)[5].toLowerCase().trim().equals("sensus")) {
+		else if (sites.get(index)[4].toLowerCase().trim().equals("sensus")) {
 
 			//GET NETWORK REPORTS FOR WEB
 			WebSensus connectingTo = new WebSensus();

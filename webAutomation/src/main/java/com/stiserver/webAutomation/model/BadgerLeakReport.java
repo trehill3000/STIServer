@@ -39,6 +39,14 @@ public class BadgerLeakReport implements Report {
         return "BadgerLeakReport";
     }
 
+    /**
+     * RETURN ENUMS REPORT TYPE
+     * @return BADGER NETWORK REPORT
+     */
+    public ReportType getReportType(){
+        return ReportType.LEAKS;
+    }
+
     @Override
     public String getPath() {
         return file.getPath();

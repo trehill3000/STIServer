@@ -10,7 +10,9 @@ public class BadgerNetworkReport implements Report {
     public BadgerNetworkReport(File file, List<String[]> data){
         this.file = file;
         this.data = data;
-    }public BadgerNetworkReport(File file){
+    }
+
+    public BadgerNetworkReport(File file){
         this.file = file;
     }
 
@@ -47,5 +49,13 @@ public class BadgerNetworkReport implements Report {
     @Override
     public String getPath() {
         return file.getPath();
+    }
+
+    /**
+     * RETURN ENUMS REPORT TYPE
+     * @return BADGER NETWORK REPORT
+     */
+    public ReportType getReportType(){
+        return ReportType.NETWORKANALYSIS;
     }
 }

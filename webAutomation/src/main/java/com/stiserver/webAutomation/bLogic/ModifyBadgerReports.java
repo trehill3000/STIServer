@@ -83,7 +83,7 @@ public class ModifyBadgerReports {
     }
 
     /**
-     * REMOVE COLUMN "Encoder ID".
+     * MODIFY: REMOVE COLUMN "Encoder ID".
      * Parse .csv and abstract data to map to assist with removing the "encoder id" column by finding it by name.
      * Take map and stitch it back together for CSV WRITER
      * @throws IOException e
@@ -108,7 +108,7 @@ public class ModifyBadgerReports {
     }
 
     /**
-     * REMOVE COLUMN "Unit/KUnit".
+     * MODIFY REMOVE COLUMN "Unit/KUnit".
      * Parse .csv and abstract data to map to assist with removing the "encoder id" column by finding it by name.
      * Take map and stitch it back together for CSV WRITER
      * @throws IOException e

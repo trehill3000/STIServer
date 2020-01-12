@@ -4,6 +4,16 @@ import java.util.List;
 
 public interface Report {
 
+     enum ReportType{
+          NETWORKANALYSIS,
+          LEAKS,
+          TAMPER,
+          ENCODER,
+          BACKFLOW,
+          FPR
+
+     }
+
      List<String[]> getList();
      String getName();
      String getPath();

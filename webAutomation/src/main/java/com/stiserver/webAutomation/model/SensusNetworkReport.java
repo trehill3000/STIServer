@@ -47,4 +47,15 @@ public class SensusNetworkReport implements Report{
     public String getPath() {
         return file.getPath();
     }
+
+
+    /**
+     * RETURN ENUMS REPORT TYPE
+     * @return BADGER NETWORK REPORT
+     */
+    public ReportType getReportType(){
+        return ReportType.NETWORKANALYSIS;
+    }
+
+
 }

@@ -41,16 +41,6 @@ public class BadgerNetworkReport implements Report {
         return data;
     }
 
-    @Override
-    public String getName() {
-        return "BadgerNetworkReport";
-    }
-
-    @Override
-    public String getPath() {
-        return file.getPath();
-    }
-
     /**
      * RETURN ENUMS REPORT TYPE
      * @return BADGER NETWORK REPORT

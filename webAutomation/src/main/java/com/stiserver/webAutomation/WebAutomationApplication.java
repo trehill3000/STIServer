@@ -73,7 +73,7 @@ public class WebAutomationApplication {
 
 			//LET EMAIL SERVER KNOW THE NA IS COMPLETE
 			RestClient r = new RestClient();
-			r.sendReport(sites.get(index)[0], report.getModifiedNetworkReport());
+			r.sendReport(sites.get(index)[0], report.getModifiedNetworkReport().getReportType());
 
 			//SEND LEAK REPORT
 			//r.sendReport(sites.get(index)[0], new BadgerLeakReport());
@@ -106,7 +106,7 @@ public class WebAutomationApplication {
 
 			//LET EMAIL SERVER KNOW THE NA IS COMPLETE
 			RestClient c1 = new RestClient();
-			c1.sendReport(sites.get(index)[0], report.getModifiedNetworkReport());
+		//	c1.sendReport(sites.get(index)[0], report.getModifiedNetworkReport());
 
 		   //RestClient c2 = new RestClient();
 			//c2.sendReport(sites.get(index)[0], report.getLeakReport());

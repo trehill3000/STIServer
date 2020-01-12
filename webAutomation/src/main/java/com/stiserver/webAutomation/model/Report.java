@@ -15,6 +15,5 @@ public interface Report {
      }
 
      List<String[]> getList();
-     String getName();
-     String getPath();
+
 }

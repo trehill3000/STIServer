@@ -38,17 +38,6 @@ public class SensusNetworkReport implements Report{
         return data;
     }
 
-    @Override
-    public String getName() {
-        return "SensusNetworkReport";
-    }
-
-    @Override
-    public String getPath() {
-        return file.getPath();
-    }
-
-
     /**
      * RETURN ENUMS REPORT TYPE
      * @return BADGER NETWORK REPORT

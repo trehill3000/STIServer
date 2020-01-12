@@ -34,11 +34,6 @@ public class BadgerLeakReport implements Report {
         return data;
     }
 
-    @Override
-    public String getName() {
-        return "BadgerLeakReport";
-    }
-
     /**
      * RETURN ENUMS REPORT TYPE
      * @return BADGER NETWORK REPORT
@@ -47,8 +42,4 @@ public class BadgerLeakReport implements Report {
         return ReportType.LEAKS;
     }
 
-    @Override
-    public String getPath() {
-        return file.getPath();
-    }
 }

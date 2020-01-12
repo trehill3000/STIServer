@@ -21,16 +21,15 @@ public class RestClient {
      /**
       * SEND NETWORK ANALYSIS REPORT IS EMAIL AUTOMATED READY
       * @param site SITE NAME
-      * @param report REPORT NAME
       */
-     public void sendReport(String site, Report report) {
+     public void sendReport(String site, Report.ReportType type) {
 
-         String REST_URI = "http://localhost:8080/api/email/report";
+         String REST_URI = "http://localhost:8080/api/email/report/send";
 
          System.out.println(client
                  .target(REST_URI)
                  .queryParam("site", site)
-                 .queryParam("report", report.getName())
+                 .queryParam("report", type)
                  .request(MediaType.APPLICATION_JSON)
                  .get(String.class));
 

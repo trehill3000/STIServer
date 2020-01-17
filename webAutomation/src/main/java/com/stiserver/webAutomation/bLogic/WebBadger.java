@@ -1,5 +1,6 @@
 package com.stiserver.webAutomation.bLogic;
 
+import com.stiserver.webAutomation.service.DirPathFinder;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -25,7 +26,6 @@ import java.util.stream.Stream;
 
 public class WebBadger {
 
-    private String url;
     private String siteName;
     private String username;
     private String password;
@@ -50,13 +50,11 @@ public class WebBadger {
         this.username = un;
         this.password = pw;
         this.siteName = siteName;
-    //   driver = new FirefoxDriver(getSettings());
-     // login();
-    //  getAdditionalReport();
-     // getBadgerReports();
-     // driver.close();
+        driver = new FirefoxDriver(getSettings());login();
+      //  getAdditionalReport();
+        getBadgerReports();
+        driver.close();
     }
-
     /**LOGIN IN
      *
      * @throws InterruptedException E
@@ -82,37 +80,67 @@ public class WebBadger {
      */
     private void getBadgerReports() throws InterruptedException, IOException, ParseException {
 
-        //DOWNLOAD PRE-PROVISIONED AND PROVISIONED REPORTS
+        //DOWNLOAD AVAILABLE REPORT
         driver.findElement(By.id("snassets")).click();
         Thread.sleep(2000);
         driver.findElement(By.xpath("//a[@href='#admin-tab-endpoints']")).click();
         Thread.sleep(2000);
-        driver.findElement(By.id("batch-actions-pre")).click();
-        driver.findElement(By.id("action-export-pre-extended")).click();
+        driver.findElement(By.id("batch-actions-man")).click();
+        driver.findElement(By.id("action-export-man")).click();
+        Thread.sleep(2000);
         driver.findElement(By.id("asset-export-button")).click();
 
         //WAIT FOR ELEMENT AND CLICK
-        WebDriverWait wait = new WebDriverWait(driver, 100000);
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
+        WebDriverWait wait11 = new WebDriverWait(driver, 100000);
+        wait11.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
         Thread.sleep(3000);
-        driver.findElement(By.id("export_result_url")).click();
-        Thread.sleep(2000);
 
-        //GET NEXT REPORT
-        driver.navigate().refresh();
-        Thread.sleep(2000);
-        driver.findElement(By.xpath("//a[@href='#admin-tab-endpoints']")).click();
-        Thread.sleep(2000);
-        driver.findElement(By.id("batch-actions")).click();
-        driver.findElement(By.id("action-export-extended")).click();
-        Thread.sleep(2000);
-        driver.findElement(By.id("asset-export-button")).click();
 
-        //WAIT FOR ELEMENT AND CLICK
-        WebDriverWait wait2 = new WebDriverWait(driver, 100000);
-        wait2.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
-        Thread.sleep(2000);
-        driver.findElement(By.id("export_result_url")).click();
+        if (driver.findElement(By.id("export_result_url")).isDisplayed()) {
+            driver.findElement(By.id("export_result_url")).click();
+            Thread.sleep(2000);
+        }
+
+        try {
+            //DOWNLOAD PRE-PROVISIONED AND PROVISIONED REPORTS_______________________________________________________________________________________
+            driver.findElement(By.id("snassets")).click();
+            Thread.sleep(2000);
+            driver.findElement(By.xpath("//a[@href='#admin-tab-endpoints']")).click();
+            Thread.sleep(2000);
+            driver.findElement(By.id("batch-actions-pre")).click();
+            driver.findElement(By.id("action-export-pre-extended")).click();
+            Thread.sleep(2000);
+            driver.findElement(By.id("asset-export-button")).click();
+
+            //WAIT FOR ELEMENT AND CLICK
+            WebDriverWait wait = new WebDriverWait(driver, 100000);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
+            Thread.sleep(3000);
+
+            driver.findElement(By.id("export_result_url")).click();
+            Thread.sleep(2000);
+        }catch (Exception ignored){}
+
+        try {
+            //GET NEXT REPORT_____________________________________________________________________________________________________________________
+            driver.navigate().refresh();
+            Thread.sleep(2000);
+            driver.findElement(By.xpath("//a[@href='#admin-tab-endpoints']")).click();
+            Thread.sleep(2000);
+            driver.findElement(By.id("batch-actions")).click();
+            driver.findElement(By.id("action-export-extended")).click();
+            Thread.sleep(2000);
+            driver.findElement(By.id("asset-export-button")).click();
+
+            //WAIT FOR ELEMENT AND CLICK
+            WebDriverWait wait2 = new WebDriverWait(driver, 100000);
+            wait2.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
+
+
+            driver.findElement(By.id("export_result_url")).click();
+            Thread.sleep(2000);
+        }catch (Exception ignored){}
+
 
         //REFRESH
         driver.navigate().refresh();
@@ -151,31 +179,31 @@ public class WebBadger {
         //FIND MOST RECENT MOD FILE AND MOVE TO ANOTHER DIR
         if (downloaded) {
             //Anonymous Async Function
-            CompletableFuture<Void> future = CompletableFuture.runAsync(new Runnable() {
+            CompletableFuture.runAsync(() -> {
+                //GET MOST RECENT DOWNLOAD FILE FROM DOWNLOAD DIR
 
-                @Override
-                public void run() {
-                    //GET MOST RECENT DOWNLOAD FILE FROM DOWNLOAD DIR
-                    File lastModFile = getMostResModFile();
-                    assert lastModFile != null;
+                File lastModFile = getMostResModFile();
+                assert lastModFile != null;
+                //  System.out.println(lastModFile);
 
-                    //GET CURRENT DATE
-                    SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
-                    //http://tutorials.jenkov.com/java-nio/files.html#files-move
-                    Path destination = Paths.get("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\ANALYTICS\\LEAKS\\" + siteName + "_Tamper_Report_" + formatter.format(new Date()) + ".csv");
 
-                    try {
-                        Files.move(lastModFile.toPath(), destination);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                //GET CURRENT DATE
+                SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
+                //http://tutorials.jenkov.com/java-nio/files.html#files-move
+                Path destination = Paths.get(DirPathFinder.tamperSendPath(siteName) + siteName + "_Tamper_Report_" + formatter.format(new Date()) + ".csv");
+                //System.out.println("-------------" + DirPathFinder.tamperSendPath(siteName) + siteName + "_Tamper_Report_" + formatter.format(new Date()) + ".csv");
+
+                try {
+                    Files.move(lastModFile.toPath(), destination);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             });
 
             downloaded = false;
         }
 
-        //DOWNLOAD METER/ENDCODER ALARMS  REPORT______________________________________________________________________________________________________________________________
+        //DOWNLOAD METER/ENCODER ALARMS REPORT______________________________________________________________________________________________________________________________
         Thread.sleep(2000);
         driver.navigate().to("https://beaconama.net/admin/portfolio");
         //DOWNLOAD REPORT
@@ -198,30 +226,27 @@ public class WebBadger {
         //FIND MOST RECENT MOD FILE AND MOVE TO ANOTHER DIR
         if (downloaded) {
             //Anonymous Async Function
-            CompletableFuture<Void> future = CompletableFuture.runAsync(new Runnable() {
-                @Override
-                public void run() {
-                    //GET MOST RECENT DOWNLOAD FILE FROM DOWNLOAD DIR
-                    File lastModFile = getMostResModFile();
-                    assert lastModFile != null;
+            CompletableFuture.runAsync(() -> {
+                //GET MOST RECENT DOWNLOAD FILE FROM DOWNLOAD DIR
+                File lastModFile = getMostResModFile();
+                assert lastModFile != null;
 
-                    //GET CURRENT DATE
-                    SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
+                //GET CURRENT DATE
+                SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
 
-                    //http://tutorials.jenkov.com/java-nio/files.html#files-move
-                    Path destination = Paths.get("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\ANALYTICS\\LEAKS\\" +siteName +  "_Encoder_Report_" + formatter.format(new Date()) + ".csv");
+                //http://tutorials.jenkov.com/java-nio/files.html#files-move
+                Path destination = Paths.get(DirPathFinder.encoderSendPath(siteName) + siteName + "_Encoder_Report_" + formatter.format(new Date()) + ".csv");
 
-                    try {
-                        Files.move(lastModFile.toPath(), destination);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    Files.move(lastModFile.toPath(), destination);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             });
             downloaded = false;
         }
 
-        //DOWNLOAD LEAK ALARMS  REPORT______________________________________________________________________________________________________________________________
+        //DOWNLOAD LEAK ALARMS  REPORT______________________________________________________________________________________________________________________________________
         Thread.sleep(2000);
         driver.navigate().to("https://beaconama.net/admin/portfolio");
         try {
@@ -244,23 +269,20 @@ public class WebBadger {
         //FIND MOST RECENT MOD FILE AND MOVE TO ANOTHER DIR
         if (downloaded) {
             //Anonymous Async Function
-            CompletableFuture<Void> future3 = CompletableFuture.runAsync(new Runnable() {
-                @Override
-                public void run() {
-                    //GET MOST RECENT DOWNLOAD FILE FROM DOWNLOAD DIR
-                    File lastModFile = getMostResModFile();
-                    assert lastModFile != null;
+            CompletableFuture.runAsync(() -> {
+                //GET MOST RECENT DOWNLOAD FILE FROM DOWNLOAD DIR
+                File lastModFile = getMostResModFile();
+                assert lastModFile != null;
 
-                    //GET CURRENT DATE
-                    SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
-                    //http://tutorials.jenkov.com/java-nio/files.html#files-move
-                    Path destination = Paths.get("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\ANALYTICS\\LEAKS\\" + siteName + "_Leak_Report_" + formatter.format(new Date()) + ".csv");
+                //GET CURRENT DATE
+                SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
+                //http://tutorials.jenkov.com/java-nio/files.html#files-move
+                Path destination = Paths.get(DirPathFinder.leakSendPath(siteName) + siteName + "_Leak_Report_" + formatter.format(new Date()) + ".csv");
 
-                    try {
-                        Files.move(lastModFile.toPath(), destination);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    Files.move(lastModFile.toPath(), destination);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             });
             downloaded = false;
@@ -296,7 +318,7 @@ public class WebBadger {
                     //GET CURRENT DATE
                     SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
                     //http://tutorials.jenkov.com/java-nio/files.html#files-move
-                    Path destination = Paths.get("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\ANALYTICS\\BACK_FLOW\\" + siteName + "_Back_Flow_Report_" + formatter.format(new Date()) + ".csv");
+                    Path destination = Paths.get(DirPathFinder.backFlowSendPath(siteName) +siteName +"_Back_Flow_Report_" + formatter.format(new Date()) + ".csv");
 
                     try {
                         Files.move(lastModFile.toPath(), destination);

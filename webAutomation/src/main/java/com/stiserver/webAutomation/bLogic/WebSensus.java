@@ -37,9 +37,7 @@ public class WebSensus {
         this.username = un;
         this.password = pw;
         this.url = url;
-        driver = new FirefoxDriver(getSettings());
-       login();
-       getAdditionalReport();
+       driver = new FirefoxDriver(getSettings());login();getAdditionalReport();
        getSensusReport();
        driver.close();
 
@@ -61,7 +59,6 @@ public class WebSensus {
 
         driver.findElement(By.xpath("//input[@name='_eventId_proceed']")).click();
     }
-
     /** Get file name
 
      */

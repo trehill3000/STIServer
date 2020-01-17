@@ -39,10 +39,10 @@ public class WebAutomationApplication {
 				sites.add(nextLine);
 			}
 		}
-		for (int i = 1; i < sites.size(); i++) {
-			//  run(sites, i);
+		for (int i  =1; i < sites.size(); i++) {
+			//run(sites, i);
 		}
-		run(sites, 1);
+		run(sites, 2);
 	}
 
 	private static void run(ArrayList<String[]> sites, int index) throws Exception {
@@ -51,29 +51,29 @@ public class WebAutomationApplication {
 		if (sites.get(index)[4].toLowerCase().trim().equals("badger")) {
 
 			//GET NETWORK REPORTS FOR WEB
-			WebBadger connectingTo = new WebBadger();
-			connectingTo.Badger(DirPathFinder.networkDownloadPath(sites.get(index)[0]), sites.get(index)[2], sites.get(index)[3], sites.get(index)[1]);
+			WebBadger downloadReport = new WebBadger();
+			downloadReport.Badger(DirPathFinder.networkDownloadPath(sites.get(index)[0]), sites.get(index)[2], sites.get(index)[3], sites.get(index)[1]);
 
 			//PARSE .CSV NETWORK REPORT
-			ModifyBadgerReports report = new ModifyBadgerReports(connectingTo.getPath(), sites.get(index)[0]);
+			ModifyBadgerReports report = new ModifyBadgerReports(downloadReport.getPath(), sites.get(index)[0]);
 			report.processBadger();
 
 			//CONNECT TO DB
-		//	ConnectingToDB conn = new ConnectingToDB(sites.get(index)[0]);
+			ConnectingToDB conn = new ConnectingToDB(sites.get(index)[0]);
 
 			//DELETE EXISTING DATA
-	//		DeleteFromTable.deleteFromTable(conn, "Badger");
+			DeleteFromTable.deleteFromTable(conn, "beacon");
 
 			//INSERT NETWORK REPORT INTO TABLE
-			//InsertIntoTable.beacon(conn, report.getModifiedNetworkReport());
+			InsertIntoTable.beacon(conn, report.getModifiedNetworkReport());
 
 			//RUN PROCEDURE
 			//RunProcedure.runNetwork_Analysis_Badger(conn);
-		//	conn.close();
+			conn.close();
 
 			//LET EMAIL SERVER KNOW THE NA IS COMPLETE
-			RestClient r = new RestClient();
-			r.sendReport(sites.get(index)[0], report.getModifiedNetworkReport().getReportType());
+		//	RestClient r = new RestClient();
+	//		r.sendReport(sites.get(index)[0], report.getModifiedNetworkReport().getReportType());
 
 			//SEND LEAK REPORT
 			//r.sendReport(sites.get(index)[0], new BadgerLeakReport());
@@ -105,7 +105,7 @@ public class WebAutomationApplication {
 			conn.close();
 
 			//LET EMAIL SERVER KNOW THE NA IS COMPLETE
-			RestClient c1 = new RestClient();
+		//	RestClient c1 = new RestClient();
 		//	c1.sendReport(sites.get(index)[0], report.getModifiedNetworkReport());
 
 		   //RestClient c2 = new RestClient();

@@ -1,5 +1,4 @@
 package com.stiserver.webAutomation.service.DB_crud;
-
 import com.stiserver.webAutomation.utils.ConnectingToDB;
 import java.sql.CallableStatement;
 import java.sql.SQLException;
@@ -7,7 +6,6 @@ import java.sql.SQLException;
 public class RunProcedure {
 
     public static void runNetwork_Analysis_Badger(ConnectingToDB conn){
-
 
         System.out.println("Running Procedure: Network_Analysis.Badger....");
 
@@ -25,7 +23,6 @@ public class RunProcedure {
                 ex.printStackTrace();
             }
         }
-
     }
 
     public static void runNetwork_Analysis_Sensus(ConnectingToDB conn) {

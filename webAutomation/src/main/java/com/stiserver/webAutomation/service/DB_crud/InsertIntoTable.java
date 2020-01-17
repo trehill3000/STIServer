@@ -1,6 +1,4 @@
 package com.stiserver.webAutomation.service.DB_crud;
-
-
 import com.stiserver.webAutomation.model.Report;
 import com.stiserver.webAutomation.utils.ConnectingToDB;
 

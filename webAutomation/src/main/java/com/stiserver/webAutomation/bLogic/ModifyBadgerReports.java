@@ -15,10 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,6 +28,7 @@ public class ModifyBadgerReports {
  * Set the instance variable of this modified file.
  */
     private String path;
+    private File available;
     private File preProReport;
     private File proReport;
     private File modifiedReport;
@@ -54,7 +52,14 @@ public class ModifyBadgerReports {
         //SET PRE AND PRO FILES
         setBadgerFiles();
 
-        //READ PRE REPORT
+        //READ AVAILABLE REPORT
+        List<String[]> avail = readCsv(path, available.getName());
+        avail = editAvailableReport(avail);
+
+        //WRITE LIST TO LOCATION
+        writeToAvail(avail);
+
+        //READ PRE REPORT____________________________________________________________________________________________________
         List<String[]> prePro = readCsv(path, preProReport.getName());
         prePro = editPreProReport(prePro);
 
@@ -65,6 +70,8 @@ public class ModifyBadgerReports {
 
         //WRITE LIST TO LOCATION
         writeTo(prePro, pro);
+
+
     }
 
     /**
@@ -80,6 +87,21 @@ public class ModifyBadgerReports {
        return reader.readCsv(new FileReader(path + "\\" + fileName));
 
         //   allRows.forEach(s-> System.out.println(Arrays.toString(s)));
+    }
+
+    private List<String[]> editAvailableReport(List<String[]> allRows) {
+        CsvReader reader = new CsvReader();
+
+        allRows = reader.changeColumnName(allRows, "All Dates in US/Eastern", "Report");
+
+        //CUSTOM EDIT TO FILE. ADD PRE PROVISIONED TO THE END OF FILE.
+        for(int i =1; i < allRows.size();i++) {
+            allRows.get(i)[4] = "AVAILABLE";
+        }
+        //TEST PRINT
+       //    allRows.forEach(n -> System.out.println(Arrays.toString(n)));
+
+        return  allRows;
     }
 
     /**
@@ -164,6 +186,29 @@ public class ModifyBadgerReports {
 
     }
 
+    private void writeToAvail(List<String[]> avail) throws IOException{
+
+        List<String[]> allRows = new ArrayList<>(avail);
+
+       // System.out.println(allRows.size());
+
+        //https://www.javatpoint.com/java-get-current-date
+        //GET CURRENT DATE
+        SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
+
+        //WRITE TO THE .CSV FILE
+        // CSVWriter writer = new CSVWriter(new FileWriter("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\NETWORK ANALYSIS\\MODIFIED REPORTS\\"+ siteName + "_Network_Analysis_"+ formatter.format(new Date()) +".csv" ,true));
+        CSVWriter writer = new CSVWriter(new FileWriter(DirPathFinder.networkModPath(siteName) + "\\"+siteName + "_Network_Analysis_Available_"+ formatter.format(new Date()) +".csv",true));
+        //WRITE TO THE .CSV FILE
+        allRows.forEach(s -> writer.writeAll(Collections.singleton(s)));
+
+
+        data = allRows;
+        writer.close();
+
+
+    }
+
     /**
      * Set the Most recent modified file names for 2 reports.
      * Must find the most recent and second most recent file by date modified.
@@ -173,7 +218,7 @@ public class ModifyBadgerReports {
         //GET STRING NAME OF FILES IN A DIR
         Stream<Path> walk = Files.walk(Paths.get(path));
         List<String> result = walk.filter(Files::isRegularFile).map(Path::toString).collect(Collectors.toList());
-        //result.forEach(System.out::println);
+    //    result.forEach(System.out::println);
         File lastModFile =  null;
 
         //SET STRING TO FILE obj
@@ -229,6 +274,27 @@ public class ModifyBadgerReports {
         //  System.out.println("Last Modified date2 : " + date1 +": "+ lastModFile.getName());
 
         preProReport = (lastModFile);
+        tempFileName.remove(lastModFile);
+
+        date1 = sdf.parse(sdf.format(tempFileName.get(0).lastModified()));//<--default date
+
+        for(File file: tempFileName) {
+            //  System.out.println(" Date1: " + date1);
+            //    System.out.println(" Date2: " + sdf.format(file.lastModified()));
+            // System.out.println(" Format:" + file + " " + sdf.format(file.lastModified()));
+            Date date2 = sdf.parse(sdf.format(file.lastModified()));
+
+            if (date1.compareTo(date2) < 0) {
+                //    System.out.println("--Date1 is before Date2");
+                date1 = date2;
+                lastModFile = file;
+            } else if (date1.compareTo(date2) == 0) {
+                //    System.out.println("--Date1 is equal to Date2");
+                date1 = date2;
+                lastModFile = file;
+            }
+        }
+        available = (lastModFile);
     }
 
     /**

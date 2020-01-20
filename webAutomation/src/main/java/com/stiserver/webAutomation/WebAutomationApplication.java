@@ -5,11 +5,10 @@ import com.stiserver.webAutomation.bLogic.ModifyBadgerReports;
 import com.stiserver.webAutomation.bLogic.ModifySensusReports;
 import com.stiserver.webAutomation.bLogic.WebBadger;
 import com.stiserver.webAutomation.bLogic.WebSensus;
-import com.stiserver.webAutomation.model.BadgerNetworkReport;
-import com.stiserver.webAutomation.model.SensusNetworkReport;
 import com.stiserver.webAutomation.service.DB_crud.DeleteFromTable;
 import com.stiserver.webAutomation.service.DB_crud.InsertIntoTable;
 import com.stiserver.webAutomation.service.DB_crud.RunProcedure;
+import com.stiserver.webAutomation.service.DB_crud.SelectFromView;
 import com.stiserver.webAutomation.service.DirPathFinder;
 import com.stiserver.webAutomation.service.RestClient;
 import com.stiserver.webAutomation.utils.ConnectingToDB;
@@ -39,10 +38,10 @@ public class WebAutomationApplication {
 				sites.add(nextLine);
 			}
 		}
-		for (int i  =1; i < sites.size(); i++) {
+		for (int i  =2; i < sites.size(); i++) {
 			//run(sites, i);
 		}
-		run(sites, 2);
+		run(sites, 1);
 	}
 
 	private static void run(ArrayList<String[]> sites, int index) throws Exception {
@@ -52,7 +51,7 @@ public class WebAutomationApplication {
 
 			//GET NETWORK REPORTS FOR WEB
 			WebBadger downloadReport = new WebBadger();
-			downloadReport.Badger(DirPathFinder.networkDownloadPath(sites.get(index)[0]), sites.get(index)[2], sites.get(index)[3], sites.get(index)[1]);
+			downloadReport.Badger(DirPathFinder.networkDownloadPath(sites.get(index)[0]), sites.get(index)[2], sites.get(index)[3], sites.get(index)[0]);
 
 			//PARSE .CSV NETWORK REPORT
 			ModifyBadgerReports report = new ModifyBadgerReports(downloadReport.getPath(), sites.get(index)[0]);
@@ -68,12 +67,16 @@ public class WebAutomationApplication {
 			InsertIntoTable.beacon(conn, report.getModifiedNetworkReport());
 
 			//RUN PROCEDURE
-			//RunProcedure.runNetwork_Analysis_Badger(conn);
+			RunProcedure.runNetwork_Analysis_Badger(conn);
+//
+			//GET NETWORK ANALYSIS VIEW
+			SelectFromView.V_Network_Analysis(conn);
+
 			conn.close();
 
 			//LET EMAIL SERVER KNOW THE NA IS COMPLETE
-		//	RestClient r = new RestClient();
-	//		r.sendReport(sites.get(index)[0], report.getModifiedNetworkReport().getReportType());
+			//RestClient r = new RestClient();
+		//	r.sendReport(sites.get(index)[0], report.getModifiedNetworkReport().getReportType());
 
 			//SEND LEAK REPORT
 			//r.sendReport(sites.get(index)[0], new BadgerLeakReport());

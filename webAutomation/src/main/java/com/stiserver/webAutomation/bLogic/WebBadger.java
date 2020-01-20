@@ -49,11 +49,14 @@ public class WebBadger {
         this.path = p;
         this.username = un;
         this.password = pw;
-        this.siteName = siteName;
-        driver = new FirefoxDriver(getSettings());login();
-      //  getAdditionalReport();
-        getBadgerReports();
-        driver.close();
+       this.siteName = siteName;
+     //  driver = new FirefoxDriver(getSettings());
+
+
+    //   login();
+       //getAdditionalReport();
+      //  getBadgerReports();
+     //   driver.close();
     }
     /**LOGIN IN
      *
@@ -103,6 +106,7 @@ public class WebBadger {
 
         try {
             //DOWNLOAD PRE-PROVISIONED AND PROVISIONED REPORTS_______________________________________________________________________________________
+            driver.navigate().refresh();
             driver.findElement(By.id("snassets")).click();
             Thread.sleep(2000);
             driver.findElement(By.xpath("//a[@href='#admin-tab-endpoints']")).click();
@@ -117,11 +121,13 @@ public class WebBadger {
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
             Thread.sleep(3000);
 
-            driver.findElement(By.id("export_result_url")).click();
-            Thread.sleep(2000);
+            if (driver.findElement(By.id("export_result_url")).isDisplayed()) {
+                driver.findElement(By.id("export_result_url")).click();
+                Thread.sleep(2000);
+            }
+
         }catch (Exception ignored){}
 
-        try {
             //GET NEXT REPORT_____________________________________________________________________________________________________________________
             driver.navigate().refresh();
             Thread.sleep(2000);
@@ -137,14 +143,13 @@ public class WebBadger {
             wait2.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
 
 
+        if (driver.findElement(By.id("export_result_url")).isDisplayed()) {
             driver.findElement(By.id("export_result_url")).click();
             Thread.sleep(2000);
-        }catch (Exception ignored){}
-
+        }
 
         //REFRESH
         driver.navigate().refresh();
-
     }
 
     /**
@@ -191,7 +196,7 @@ public class WebBadger {
                 SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
                 //http://tutorials.jenkov.com/java-nio/files.html#files-move
                 Path destination = Paths.get(DirPathFinder.tamperSendPath(siteName) + siteName + "_Tamper_Report_" + formatter.format(new Date()) + ".csv");
-                //System.out.println("-------------" + DirPathFinder.tamperSendPath(siteName) + siteName + "_Tamper_Report_" + formatter.format(new Date()) + ".csv");
+                System.out.println("-------------" + DirPathFinder.tamperSendPath(siteName) + siteName + "_Tamper_Report_" + formatter.format(new Date()) + ".csv");
 
                 try {
                     Files.move(lastModFile.toPath(), destination);

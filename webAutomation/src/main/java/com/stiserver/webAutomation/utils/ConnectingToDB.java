@@ -12,8 +12,8 @@ import java.sql.SQLException;
 public class ConnectingToDB
 {
     private Connection conn; //Final connection for this login. Will be used and passed/referenced in all classes.
-
     private boolean isConnected = false;
+    private String siteName;
 
     /**
      * Used to create empty class for use of getter methods.
@@ -28,6 +28,7 @@ public class ConnectingToDB
      * @param username username
      */
     public ConnectingToDB(String username) throws SQLException, ClassNotFoundException {
+        siteName = username;
         Class.forName("oracle.jdbc.driver.OracleDriver");
         conn = DriverManager.getConnection("jdbc:oracle:thin:@172.16.199.126:1521:pontus", username, username + "57$");
 
@@ -49,6 +50,8 @@ public class ConnectingToDB
     {
         return isConnected;
     }
+
+    public String getSiteName(){return siteName;}
 
     /**
      * Pass connection to not make or recreate another connection.

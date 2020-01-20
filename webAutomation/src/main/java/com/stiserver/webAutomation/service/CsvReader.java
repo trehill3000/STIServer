@@ -207,37 +207,5 @@ public class CsvReader {
         return map;
     }
 
-    private List<String[]> changeColumnValuesSensus(LinkedHashMap<String, ArrayList<String>> map, String header, String value) {
-        //MAIN LIST TO BE READ TO .CSV FILE.
-        List<String[]> allRows = new ArrayList<>();
-
-        //GET HEADER KEYS FROM MAP.
-        List<String> tempHeadersFromMap = new ArrayList<>(map.keySet());
-        String[] headerForCsvWriter = new String[map.size()];
-
-        allRows.add(headerForCsvWriter);
-
-        for (int i = 0; i < headerForCsvWriter.length; i++) { //X9
-           //    System.out.println("Header Key: " + tempHeadersFromMap.get(i));
-            headerForCsvWriter[i] = tempHeadersFromMap.get(i);
-        }
-
-        //GET SIZE OF VALUES IN MAP
-        int sizeOfValues = 0;
-        for (Map.Entry<String, ArrayList<String>> entery : map.entrySet()) {
-            sizeOfValues = entery.getValue().size();
-        }
-
-        //REPLACE VALUES IN COLUMN WITH NEW VALUES
-        ArrayList<String> tempS = new ArrayList<>();
-        for (int i = 0; i < sizeOfValues; i++) {
-            tempS.add(value);
-        }
-        map.put(header, tempS);
-
-
-        return allRows;
-    }
-
 }
 

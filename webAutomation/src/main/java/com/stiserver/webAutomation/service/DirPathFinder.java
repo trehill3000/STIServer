@@ -15,7 +15,7 @@ public class DirPathFinder {
     }
     public static String networkSendPath(String sitename){
 
-        return "C:\\Users\\UMS\\OneDrive - UMS\\SIServer\\Sites\\Active\\"+ sitename+"\\Network Analysis\\SEND";
+        return "C:\\Users\\UMS\\OneDrive - UMS\\SIServer\\Sites\\Active\\"+ sitename+"\\Network Analysis\\SEND\\";
     }
 
     //____________FPR
@@ -32,6 +32,7 @@ public class DirPathFinder {
 
     public static String encoderSendPath(String name){
         return "C:\\Users\\UMS\\OneDrive - UMS\\SIServer\\Sites\\Active\\"+name+"\\ANALYTICS\\Encoder\\";
+
     }
 
     public static String leakSendPath(String name){
@@ -40,6 +41,7 @@ public class DirPathFinder {
 
     public static String tamperSendPath(String name){
         return "C:\\Users\\UMS\\OneDrive - UMS\\SIServer\\Sites\\Active\\"+name+"\\ANALYTICS\\tamper\\";
+
     }
 
 

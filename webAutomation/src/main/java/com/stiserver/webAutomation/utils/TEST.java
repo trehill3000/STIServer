@@ -1,51 +1,115 @@
 package com.stiserver.webAutomation.utils;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.*;
 
-import com.stiserver.webAutomation.service.DB_crud.DeleteFromTable;
+import java.io.*;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
+
+import java.util.*;
 
 public class TEST {
 
-    public static void main(String[] args) throws SQLException, ClassNotFoundException {
+    public static void main(String[] args) throws SQLException, ClassNotFoundException, IOException {
 
-        //CONNECT TO DB
-        ConnectingToDB conn = new ConnectingToDB("columbia");
-        Statement stmt = conn.getConnection().createStatement();
-
-        //GET DATA
-        String sql = "select exp_data, route_key from v_network_analysis";
-        ResultSet rs = stmt.executeQuery(sql);
-
-        //HOUSE DATA
-        List<String> openIssue = new ArrayList<>();
-        List<String> closedIssue = new ArrayList<>();
-        List<String> autoClosedIssue = new ArrayList<>();
-
-        //Extract data from result set
-        while (rs.next()) {
-            //Retrieve by column name
-            String exp_data = rs.getString("exp_data");
-            String route_key = rs.getString("route_key");
-           // System.out.println(rs.getString("exp_data") + "," + rs.getString("route_key"));
-
-            switch (route_key) {
-                case "Open":
-                    openIssue.add(exp_data);
-                    break;
-                case "Closed":
-                    closedIssue.add(exp_data);
-                    break;
-                case "Auto Closed":
-                    autoClosedIssue.add(exp_data);
-                    break;
-            }
+        ArrayList arList=null;
+        ArrayList al=null;
+        String fName = "C:\\Users\\UMS\\OneDrive - UMS\\SIServer\\Sites\\Active\\Columbia\\Network Analysis\\SEND\\Columbia_Network_Analysis_OPEN_01-16-2020.csv";
+        String thisLine;
+        FileInputStream fis = new FileInputStream(fName);
+        DataInputStream myInput = new DataInputStream(fis);
+        arList = new ArrayList<>();
+        while ((thisLine = myInput.readLine()) != null)
+        {
+            al = new ArrayList<>();
+            String[] strar = thisLine.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+            Collections.addAll(al, strar);
+            arList.add(al);
+            System.out.println();
         }
 
+        //CUSTOMIZE EXCEL SHEET
+        try
+        {
+            XSSFWorkbook workbook = new XSSFWorkbook();
 
-        conn.close();
+            //ADD STYLE
+            XSSFSheet sheet = workbook.createSheet("Network Analysis");
+            sheet.createFreezePane(0, 1); //freeeze
+
+
+
+
+
+
+
+
+            //ADD DATA TO EXCEL
+            for(int k=0;k<arList.size();k++)
+            {
+                List ardata = (ArrayList)arList.get(k);
+                XSSFRow row = sheet.createRow(k);
+                for(int p=0;p<ardata.size();p++)
+                {
+                    XSSFCell cell = row.createCell((short) p);
+                    String data = ardata.get(p).toString();
+                    if(data.startsWith("=")){
+                        data=data.replaceAll("\"", "");
+                        data=data.replaceAll("=", "");
+                        cell.setCellValue(data);
+                    }else if(data.startsWith("\"")){
+                        data=data.replaceAll("\"", "");
+                        cell.setCellValue(data);
+                    }else{
+                        data=data.replaceAll("\"", "");
+
+                        cell.setCellValue(data);
+                    }
+                    //*/
+                    //   cell.setCellValue(ardata.get(p).toString());
+                }
+                System.out.println();
+            }
+
+
+
+
+
+            XSSFCellStyle style = workbook.createCellStyle();
+            style.setBorderTop(BorderStyle.valueOf((short) 6)); // double lines border
+            style.setBorderBottom(BorderStyle.valueOf((short) 1)); // single line border
+            XSSFFont font = workbook.createFont();
+            font.setFontHeightInPoints((short) 15);
+            font.setBold(true);;
+            style.setFont(font);
+
+            Row row = sheet.createRow(0);
+            Cell cell0 = row.createCell(0);
+            cell0.setCellValue("Nav Value");
+            cell0.setCellStyle(style);
+            for(int j = 0; j<=3; j++)
+                row.getCell(j).setCellStyle(style);
+
+            style= (XSSFCellStyle) row.getRowStyle();
+
+            style.setFont(font);
+
+
+
+
+
+
+
+
+
+
+
+            FileOutputStream fileOut = new FileOutputStream("C:\\Users\\UMS\\OneDrive - UMS\\SIServer\\Sites\\Active\\Columbia\\Network Analysis\\SEND\\test.xlsx");
+            workbook.write(fileOut);
+            fileOut.close();
+            System.out.println("Your excel file has been generated");
+        } catch ( Exception ex ) {
+            ex.printStackTrace();
+        } //main method ends
     }
 }

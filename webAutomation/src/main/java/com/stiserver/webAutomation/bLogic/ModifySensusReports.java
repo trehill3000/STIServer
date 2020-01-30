@@ -5,7 +5,6 @@ import com.opencsv.exceptions.CsvValidationException;
 import com.stiserver.webAutomation.model.SensusNetworkReport;
 import com.stiserver.webAutomation.service.CsvReader;
 import com.stiserver.webAutomation.service.DirPathFinder;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;

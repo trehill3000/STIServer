@@ -8,28 +8,18 @@ import java.sql.SQLException;
  * Upon login, this class will validate the connection and return True or False
  * -Create and instance of the connection.
  */
-public class ConnectingToDB
-{
+public class ConnectToPost {
+
     private Connection conn; //Final connection for this login. Will be used and passed/referenced in all classes.
     private boolean isConnected = false;
-    private String siteName;
-
-    /**
-     * Used to create empty class for use of getter methods.
-     */
-    public ConnectingToDB() {
-
-    }
 
     /**
      * Attempts to connect to DB.
      * Take the data from login.fxml and connect to DB
-     * @param username username
      */
-    public ConnectingToDB(String username) throws SQLException, ClassNotFoundException {
-        siteName = username;
-        Class.forName("oracle.jdbc.driver.OracleDriver");
-        conn = DriverManager.getConnection("jdbc:oracle:thin:@172.16.199.126:1521:pontus", username, username + "57$");
+    public ConnectToPost() throws SQLException, ClassNotFoundException {
+        Class.forName("org.postgresql.Driver");
+        conn = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/email_master7", "thill", "2550");
 
         if (conn != null)
         {
@@ -45,12 +35,11 @@ public class ConnectingToDB
      * Is connected to DB
      * @return True or False
      */
-    public boolean connected()
+    public boolean isConnected()
     {
         return isConnected;
     }
 
-    public String getSiteName(){return siteName;}
 
     /**
      * Pass connection to not make or recreate another connection.

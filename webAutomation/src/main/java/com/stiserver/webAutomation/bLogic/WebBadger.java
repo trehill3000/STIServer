@@ -1,12 +1,16 @@
 package com.stiserver.webAutomation.bLogic;
 
+import com.stiserver.webAutomation.model.SiteInfoBadger;
 import com.stiserver.webAutomation.service.DirPathFinder;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.File;
@@ -16,13 +20,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class WebBadger {
 
@@ -30,127 +39,156 @@ public class WebBadger {
     private String username;
     private String password;
     private String path;
+
+    private String avail_report;
+    private String prepro_report;
+    private String pro_report;
+    private String leak_report;
+    private String tamper_report;
+    private String encoder_report;
+    private String additionalLogin;
+
     private WebDriver driver;
 
     /**
      * Default
-     *
      */
     public WebBadger(){
     }
 
-    /**
-     * Receive Username, Password, Path
-     * @param p path
-     * @param un username
-     * @param pw password
-     */
-    public void Badger(String p, String un, String pw, String siteName) throws InterruptedException, IOException, ParseException {
+    public void Badger(String p, SiteInfoBadger site) throws InterruptedException, IOException, ParseException {
         this.path = p;
-        this.username = un;
-        this.password = pw;
-       this.siteName = siteName;
-     //  driver = new FirefoxDriver(getSettings());
+        this.username = site.getUsername();
+        this.password = site.getPassword();
+        this.siteName = site.getSite_name();
 
+        this.avail_report = site.getAvail_api();
+        this.prepro_report = site.getPrepro_api();
+        this.pro_report = site.getPro_api();
+        this.leak_report = site.getLeak_api();
+        this.tamper_report = site.getTamper_api();
+        this.encoder_report = site.getEncoder_api();
+        this.additionalLogin = site.getAdditional_login();
 
-    //   login();
-       //getAdditionalReport();
-      //  getBadgerReports();
-     //   driver.close();
+        driver = new FirefoxDriver(getSettings());
+        login();
+        getAdditionalReport();
+     //  getBadgerReports();
+        driver.close();
     }
+
     /**LOGIN IN
      *
      * @throws InterruptedException E
      */
     public void login() throws InterruptedException {
 
+        if(additionalLogin ==  null || additionalLogin.equals("")) {
+            //CLEAN UP
+            driver.manage().deleteAllCookies();
+            driver.manage().timeouts().pageLoadTimeout(15, SECONDS);
+            driver.manage().timeouts().implicitlyWait(6, SECONDS);
+
+            //LOGIN
+            driver.get("https://beaconama.net/signin");
+            driver.findElement(By.id("username")).sendKeys(username);
+            driver.findElement(By.id("password")).sendKeys(password);
+            driver.findElement(By.id("ba-submit")).click();
+            Thread.sleep(3000);
+        }
+        //EXTRA LOGIN STEP
+        else{loginAdditional();        }
+    }
+
+    /**
+     * ADDITIONAL LOGIN
+     * @throws InterruptedException G
+     */
+    public void loginAdditional() throws InterruptedException {
+
         //CLEAN UP
         driver.manage().deleteAllCookies();
-        driver.manage().timeouts().pageLoadTimeout(40, TimeUnit.SECONDS);
-        driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+        driver.manage().timeouts().pageLoadTimeout(6, SECONDS);
+        driver.manage().timeouts().implicitlyWait(6, SECONDS);
 
         //LOGIN
         driver.get("https://beaconama.net/signin");
         driver.findElement(By.id("username")).sendKeys(username);
         driver.findElement(By.id("password")).sendKeys(password);
         driver.findElement(By.id("ba-submit")).click();
-        Thread.sleep(3000);
+        driver.findElement(By.xpath("//button[@value='" + additionalLogin +"']")).click();
 
+        Thread.sleep(3000);
     }
 
     /**
      *GET REPORTS
      */
-    private void getBadgerReports() throws InterruptedException, IOException, ParseException {
+    private void getBadgerReports() throws InterruptedException {
 
-        //DOWNLOAD AVAILABLE REPORT
+      //  driver.manage().timeouts().pageLoadTimeout(5000, SECONDS);
+        try{driver.get("https://beaconama.net/" + avail_report);}catch (Exception ignored){};
+        try{driver.get("https://beaconama.net/" + prepro_report);}catch (Exception ignored){};
+        try{driver.get("https://beaconama.net/" + pro_report);}catch (Exception ignored){};
+    }
+
+    /*   public void clickyyy() throws InterruptedException {
+
+        Thread.sleep(3000);
+
+
+        //DOWNLOAD PRE-PROVISIONED AND PROVISIONED REPORTS_______________________________________________________________________________________
+        driver.navigate().refresh();
         driver.findElement(By.id("snassets")).click();
         Thread.sleep(2000);
         driver.findElement(By.xpath("//a[@href='#admin-tab-endpoints']")).click();
         Thread.sleep(2000);
-        driver.findElement(By.id("batch-actions-man")).click();
-        driver.findElement(By.id("action-export-man")).click();
+        driver.findElement(By.id("batch-actions-pre")).click();
+        driver.findElement(By.id("action-export-pre-extended")).click();
         Thread.sleep(2000);
         driver.findElement(By.id("asset-export-button")).click();
 
         //WAIT FOR ELEMENT AND CLICK
-        WebDriverWait wait11 = new WebDriverWait(driver, 100000);
-        wait11.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
-        Thread.sleep(3000);
+        Wait<WebDriver> wait12 = new FluentWait<>(driver)
+                .withTimeout(500000, SECONDS)
+                .pollingEvery(30000, SECONDS)
+                .ignoring(Exception.class);
 
+        WebElement clicked1 = wait12.until(new Function<WebDriver, WebElement>() {
+            @Override
+            public WebElement apply(WebDriver webDriver) {
+                return wait12.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@id='export_result_url']")));
 
-        if (driver.findElement(By.id("export_result_url")).isDisplayed()) {
-            driver.findElement(By.id("export_result_url")).click();
-            Thread.sleep(2000);
-        }
-
-        try {
-            //DOWNLOAD PRE-PROVISIONED AND PROVISIONED REPORTS_______________________________________________________________________________________
-            driver.navigate().refresh();
-            driver.findElement(By.id("snassets")).click();
-            Thread.sleep(2000);
-            driver.findElement(By.xpath("//a[@href='#admin-tab-endpoints']")).click();
-            Thread.sleep(2000);
-            driver.findElement(By.id("batch-actions-pre")).click();
-            driver.findElement(By.id("action-export-pre-extended")).click();
-            Thread.sleep(2000);
-            driver.findElement(By.id("asset-export-button")).click();
-
-            //WAIT FOR ELEMENT AND CLICK
-            WebDriverWait wait = new WebDriverWait(driver, 100000);
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
-            Thread.sleep(3000);
-
-            if (driver.findElement(By.id("export_result_url")).isDisplayed()) {
-                driver.findElement(By.id("export_result_url")).click();
-                Thread.sleep(2000);
             }
-
-        }catch (Exception ignored){}
-
-            //GET NEXT REPORT_____________________________________________________________________________________________________________________
-            driver.navigate().refresh();
-            Thread.sleep(2000);
-            driver.findElement(By.xpath("//a[@href='#admin-tab-endpoints']")).click();
-            Thread.sleep(2000);
-            driver.findElement(By.id("batch-actions")).click();
-            driver.findElement(By.id("action-export-extended")).click();
-            Thread.sleep(2000);
-            driver.findElement(By.id("asset-export-button")).click();
-
-            //WAIT FOR ELEMENT AND CLICK
-            WebDriverWait wait2 = new WebDriverWait(driver, 100000);
-            wait2.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
+        });
+        clicked1.click();
 
 
-        if (driver.findElement(By.id("export_result_url")).isDisplayed()) {
-            driver.findElement(By.id("export_result_url")).click();
-            Thread.sleep(2000);
-        }
-
-        //REFRESH
+        //GET NEXT REPORT_____________________________________________________________________________________________________________________
         driver.navigate().refresh();
-    }
+        Thread.sleep(2000);
+        driver.findElement(By.xpath("//a[@href='#admin-tab-endpoints']")).click();
+        Thread.sleep(2000);
+        driver.findElement(By.id("batch-actions")).click();
+        driver.findElement(By.id("action-export-extended")).click();
+        Thread.sleep(2000);
+        driver.findElement(By.id("asset-export-button")).click();
+
+        //WAIT FOR ELEMENT AND CLICK
+        Wait<WebDriver> wait113 = new FluentWait<>(driver)
+                .withTimeout(500000, SECONDS)
+                .pollingEvery(30000, SECONDS)
+                .ignoring(Exception.class);
+
+        WebElement clicked2 = wait113.until(new Function<WebDriver, WebElement>() {
+            @Override
+            public WebElement apply(WebDriver webDriver) {
+                return wait113.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@id='export_result_url']")));
+
+            }
+        });
+        clicked2.click();
+    }*/
 
     /**
      *GET ADDITIONAL ANALYTICAL REPORTS
@@ -196,7 +234,7 @@ public class WebBadger {
                 SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
                 //http://tutorials.jenkov.com/java-nio/files.html#files-move
                 Path destination = Paths.get(DirPathFinder.tamperSendPath(siteName) + siteName + "_Tamper_Report_" + formatter.format(new Date()) + ".csv");
-                System.out.println("-------------" + DirPathFinder.tamperSendPath(siteName) + siteName + "_Tamper_Report_" + formatter.format(new Date()) + ".csv");
+               // System.out.println("-------------" + DirPathFinder.tamperSendPath(siteName) + siteName + "_Tamper_Report_" + formatter.format(new Date()) + ".csv");
 
                 try {
                     Files.move(lastModFile.toPath(), destination);
@@ -351,9 +389,12 @@ public class WebBadger {
 
         //REMOVE DIALOGUE BOX
         profile.setPreference("browser.helperApps.alwaysAsk.force", false);
+        profile.setPreference("browser.download.manager.alertOnEXEOpen", false);
+        profile.setPreference("browser.download.manager.useWindow", false);
         profile.setPreference("browser.download.manager.focusWhenStarting", false);
         profile.setPreference("browser.download.manager.useWindow", false);
         profile.setPreference("browser.download.manager.showAlertOnComplete", false);
+        profile.setPreference("browser.download.manager.showWhenStarting", false);
 
         //SET LOCATION TO DOWNLOAD FILES
         profile.setPreference("browser.download.dir", path); //Set the last directory used for saving a file from the "What should (browser) do with this file?" dialog.
@@ -437,4 +478,63 @@ public class WebBadger {
      * @return get path
      */
     public String getPath(){return path;}
+
+    //test
+   /*   public void clickyyy() throws InterruptedException {
+
+        Thread.sleep(3000);
+
+
+        //DOWNLOAD PRE-PROVISIONED AND PROVISIONED REPORTS_______________________________________________________________________________________
+        driver.navigate().refresh();
+        driver.findElement(By.id("snassets")).click();
+        Thread.sleep(2000);
+        driver.findElement(By.xpath("//a[@href='#admin-tab-endpoints']")).click();
+        Thread.sleep(2000);
+        driver.findElement(By.id("batch-actions-pre")).click();
+        driver.findElement(By.id("action-export-pre-extended")).click();
+        Thread.sleep(2000);
+        driver.findElement(By.id("asset-export-button")).click();
+
+        //WAIT FOR ELEMENT AND CLICK
+        Wait<WebDriver> wait12 = new FluentWait<>(driver)
+                .withTimeout(500000, SECONDS)
+                .pollingEvery(30000, SECONDS)
+                .ignoring(Exception.class);
+
+        WebElement clicked1 = wait12.until(new Function<WebDriver, WebElement>() {
+            @Override
+            public WebElement apply(WebDriver webDriver) {
+                return wait12.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@id='export_result_url']")));
+
+            }
+        });
+        clicked1.click();
+
+
+        //GET NEXT REPORT_____________________________________________________________________________________________________________________
+        driver.navigate().refresh();
+        Thread.sleep(2000);
+        driver.findElement(By.xpath("//a[@href='#admin-tab-endpoints']")).click();
+        Thread.sleep(2000);
+        driver.findElement(By.id("batch-actions")).click();
+        driver.findElement(By.id("action-export-extended")).click();
+        Thread.sleep(2000);
+        driver.findElement(By.id("asset-export-button")).click();
+
+        //WAIT FOR ELEMENT AND CLICK
+        Wait<WebDriver> wait113 = new FluentWait<>(driver)
+                .withTimeout(500000, SECONDS)
+                .pollingEvery(30000, SECONDS)
+                .ignoring(Exception.class);
+
+        WebElement clicked2 = wait113.until(new Function<WebDriver, WebElement>() {
+            @Override
+            public WebElement apply(WebDriver webDriver) {
+                return wait113.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@id='export_result_url']")));
+
+            }
+        });
+        clicked2.click();
+    }*/
 }

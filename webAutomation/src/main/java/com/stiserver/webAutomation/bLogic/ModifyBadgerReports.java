@@ -47,7 +47,7 @@ public class ModifyBadgerReports {
      * Process Badger files to be ready to insert into DB
      * @throws IOException e
      */
-    public void processBadger() throws IOException, ParseException, CsvValidationException {
+    public void process() throws IOException, ParseException, CsvValidationException {
 
         //SET PRE AND PRO FILES
         setBadgerFiles();
@@ -72,6 +72,14 @@ public class ModifyBadgerReports {
         writeTo(prePro, pro);
 
 
+    }
+
+    /**
+     * VALIDATES IF THE FILE GOT DOWNLOADED.
+     * @return T || F
+     */
+    public boolean processed() {
+        return true;
     }
 
     /**
@@ -168,17 +176,14 @@ public class ModifyBadgerReports {
 
         System.out.println(allRows.size());
 
-        //https://www.javatpoint.com/java-get-current-date
-        //GET CURRENT DATE
-        SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
 
         //WRITE TO THE .CSV FILE
        // CSVWriter writer = new CSVWriter(new FileWriter("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\NETWORK ANALYSIS\\MODIFIED REPORTS\\"+ siteName + "_Network_Analysis_"+ formatter.format(new Date()) +".csv" ,true));
-        CSVWriter writer = new CSVWriter(new FileWriter(DirPathFinder.networkModPath(siteName) + "\\"+siteName + "_Network_Analysis_"+ formatter.format(new Date()) +".csv",true));
+        CSVWriter writer = new CSVWriter(new FileWriter(DirPathFinder.networkModPath(siteName) + "\\"+siteName + "_Network_Analysis_"+ new SimpleDateFormat("MM-dd-yyyy").format(new Date())  +".csv",true));
         //WRITE TO THE .CSV FILE
         allRows.forEach(s -> writer.writeAll(Collections.singleton(s)));
 
-        modifiedReport = new File(DirPathFinder.networkModPath(siteName) + "\\"+siteName + "_Network_Analysis_"+formatter.format(new Date()) +".csv");
+        modifiedReport = new File(DirPathFinder.networkModPath(siteName) + "\\"+siteName + "_Network_Analysis_"+new SimpleDateFormat("MM-dd-yyyy").format(new Date())  +".csv");
         //modifiedReport = new File("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\NETWORK ANALYSIS\\MODIFIED REPORTS\\"+ siteName + "_Network_Analysis_"+formatter.format(new Date()) +".csv");
 
         data = allRows;
@@ -192,13 +197,8 @@ public class ModifyBadgerReports {
 
        // System.out.println(allRows.size());
 
-        //https://www.javatpoint.com/java-get-current-date
-        //GET CURRENT DATE
-        SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
-
         //WRITE TO THE .CSV FILE
-        // CSVWriter writer = new CSVWriter(new FileWriter("C:\\Users\\UMS\\Documents\\z_New computer\\Sites\\Active\\" + siteName + "\\NETWORK ANALYSIS\\MODIFIED REPORTS\\"+ siteName + "_Network_Analysis_"+ formatter.format(new Date()) +".csv" ,true));
-        CSVWriter writer = new CSVWriter(new FileWriter(DirPathFinder.networkModPath(siteName) + "\\"+siteName + "_Network_Analysis_Available_"+ formatter.format(new Date()) +".csv",true));
+        CSVWriter writer = new CSVWriter(new FileWriter(DirPathFinder.networkModPath(siteName) + "\\"+siteName + "_Network_Analysis_Available_"+ new SimpleDateFormat("MM-dd-yyyy").format(new Date())  +".csv",true));
         //WRITE TO THE .CSV FILE
         allRows.forEach(s -> writer.writeAll(Collections.singleton(s)));
 
@@ -223,9 +223,7 @@ public class ModifyBadgerReports {
 
         //SET STRING TO FILE obj
         ArrayList<File> tempFileName = new ArrayList<>();
-        for(String s: result) {
-            tempFileName.add(new File(s));
-        }
+        for(String s: result) {tempFileName.add(new File(s));}
 
         //GET THE LAST MODIFIED DATE
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");

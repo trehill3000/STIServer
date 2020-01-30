@@ -39,7 +39,7 @@ public class WebSensus {
         this.url = url;
        driver = new FirefoxDriver(getSettings());login();getAdditionalReport();
        getSensusReport();
-       driver.close();
+      driver.close();
 
     }
 

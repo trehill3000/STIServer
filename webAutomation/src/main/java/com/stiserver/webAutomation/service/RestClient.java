@@ -24,15 +24,12 @@ public class RestClient {
       */
      public void sendReport(String site, Report.ReportType type) {
 
-         String REST_URI = "http://localhost:8080/api/email/report/send";
-
          System.out.println(client
-                 .target(REST_URI)
+                 .target("http://localhost:5000/api/email/report/send")
                  .queryParam("site", site)
                  .queryParam("report", type)
                  .request(MediaType.APPLICATION_JSON)
                  .get(String.class));
 
      }
-
  }

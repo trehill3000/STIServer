@@ -1,0 +1,6 @@
+app:
+  datasource:
+    jdbc-url: jdbc:postgresql://localhost:5432/email_master7
+    username: thill
+    password: 2550
+    pool-size: 30

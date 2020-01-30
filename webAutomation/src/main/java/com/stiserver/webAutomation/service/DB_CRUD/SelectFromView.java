@@ -1,4 +1,4 @@
-package com.stiserver.webAutomation.service.DB_crud;
+package com.stiserver.webAutomation.service.DB_CRUD;
 
         import com.opencsv.CSVWriter;
         import com.stiserver.webAutomation.service.DirPathFinder;
@@ -25,12 +25,13 @@ public class SelectFromView {
         Statement stmt = conn.getConnection().createStatement();
 
         //GET DATA FROM EXP_TYPE
-        String sql = "select exp_data, route_key from v_network_analysis";
+        String sql = "SELECT exp_data, route_key FROM v_network_analysis";
         ResultSet rs = stmt.executeQuery(sql);
 
         //HOUSE DATA IN LIST
         List<String[]> openIssue = new ArrayList<>();
         List<String[]> closedIssue = new ArrayList<>();
+        List<String[]> autoClosedIssues = new ArrayList<>();
 
         //EXTRACT DATA FROM LIST
         while (rs.next()) {
@@ -66,30 +67,39 @@ public class SelectFromView {
                     closedIssue.add(s2);
                     // System.out.println(Arrays.toString(s));
 
+                case "AUTO CLOSED":
+                    //Add csv string and split commas
+                    List<String> parsedString3 = new ArrayList<>(Arrays.asList(exp_data.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)")));
+                    String [] s3 = new String[parsedString3.size()];
+
+                    //Loop through csv string into list
+                    for(int word =0; word < parsedString3.size(); word ++){
+                        s3[word] = parsedString3.get(word);
+                    }
+                    autoClosedIssues.add(s3);
+                    // System.out.println(Arrays.toString(s));
+
                     break;
             }
         }
 
         //WRITE LIST DATA TO .CSV FILE___________________________________________OPEN ISSUE__________________________________________________________________
-        //GET CURRENT DATE
-        SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
-
-        //WRITE TO THE .CSV FILE
-        CSVWriter writer = new CSVWriter(new FileWriter(DirPathFinder.networkSendPath(conn.getSiteName()) + conn.getSiteName()  +"_Network_Analysis_OPEN_" + formatter.format(new Date()) +".csv",true));
-        //WRITE TO THE .CSV FILE
+        CSVWriter writer = new CSVWriter(new FileWriter(DirPathFinder.networkSendPathOpened(conn.getSiteName()) + "OPENED_" + conn.getSiteName()  +"_Network_Analysis_" + new SimpleDateFormat("MM-dd-yyyy").format(new Date()) +".csv",true));
         openIssue.forEach(s -> writer.writeAll(Collections.singleton(s)));
-
         writer.close();
 
 
         //WRITE LIST DATA TO .CSV FILE___________________________________________CLOSED ISSUE____________________________________________________________________
-
-        //WRITE TO THE .CSV FILE
-        CSVWriter writer1 = new CSVWriter(new FileWriter(DirPathFinder.networkSendPath(conn.getSiteName()) + conn.getSiteName()  +"_Network_Analysis_CLOSED_" + formatter.format(new Date()) +".csv",true));
-        //WRITE TO THE .CSV FILE
+        CSVWriter writer1 = new CSVWriter(new FileWriter(DirPathFinder.networkSendPathClosed(conn.getSiteName()) + "CLOSED_" +conn.getSiteName()  +"_Network_Analysis_" + new SimpleDateFormat("MM-dd-yyyy").format(new Date()) +".csv",true));
         closedIssue.forEach(s -> writer1.writeAll(Collections.singleton(s)));
-
         writer1.close();
+
+
+        //WRITE LIST DATA TO .CSV FILE___________________________________________AUTO CLOSED ISSUE____________________________________________________________________
+        CSVWriter writer2 = new CSVWriter(new FileWriter(DirPathFinder.networkSendPathAuto(conn.getSiteName()) + "AUTO_CLOSED_" +conn.getSiteName()  +"_Network_Analysis_" + new SimpleDateFormat("MM-dd-yyyy").format(new Date()) +".csv",true));
+        autoClosedIssues.forEach(s -> writer2.writeAll(Collections.singleton(s)));
+
+        writer2.close();
 
     }
 }

@@ -1,18 +1,32 @@
 package com.stiserver.webAutomation.bLogic;
-
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import com.stiserver.webAutomation.model.SensusNetworkReport;
+import com.stiserver.webAutomation.model.SiteInfoSensus;
+import com.stiserver.webAutomation.service.DirPathFinder;
+import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class WebSensus {
 
+    private String siteName;
     private String url;
     private String username;
     private String password;
@@ -27,64 +41,87 @@ public class WebSensus {
     public WebSensus() {}
 
     /**
-     * Receive Username, Password, Path
-     * @param path path
-     * @param un username
-     * @param pw password
+     * GET OBJ INFOR
+     * @param path F
+     * @param site F
+     * @throws InterruptedException F
+     * @throws IOException F
+     * @throws ParseException F
      */
-    public void sensus(String path, String un, String pw, String url) throws InterruptedException {
+    public void sensus(String path, SiteInfoSensus site) throws InterruptedException, IOException, ParseException {
+        this.siteName = site.getSite_name();
         this.path = path;
-        this.username = un;
-        this.password = pw;
-        this.url = url;
-       driver = new FirefoxDriver(getSettings());login();getAdditionalReport();
+        this.username = site.getUsername();
+        this.password = site.getPassword();
+        this.url = site.getRni();
+       driver = new FirefoxDriver(getSettings());
+       login();
+       //getAdditionalReport();
        getSensusReport();
-      driver.close();
-
+        driver.close();
     }
 
     /**LOGIN IN
      */
-    private void login() {
-        //CLEAN UP
-        driver.manage().deleteAllCookies();
-        // driver.manage().timeouts().pageLoadTimeout(40, TimeUnit.SECONDS);
-        driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+    private void login() throws InterruptedException, IOException, ParseException {
+        try {
+            //CLEAN UP
+            driver.manage().deleteAllCookies();
+            // driver.manage().timeouts().pageLoadTimeout(40, TimeUnit.SECONDS);
+            driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 
-        //INITIAL COMMANDS FOR SENSUS.
-        //LOGIN
-        driver.get(url);
-        driver.findElement(By.id("username")).sendKeys(username);
-        driver.findElement(By.id("password")).sendKeys(password);
+            //LOGIN
+            driver.get(url);
+            driver.findElement(By.id("username")).sendKeys(username);
+            driver.findElement(By.id("password")).sendKeys(password);
+            Thread.sleep(3000);
 
-        driver.findElement(By.xpath("//input[@name='_eventId_proceed']")).click();
+            driver.findElement(By.xpath("//input[@name='_eventId_proceed']")).click();
+
+            //DOWNLOAD .CSV FILE
+            WebElement element = driver.findElement(By.xpath("//a[@href='/reportgen']"));
+            JavascriptExecutor executor = (JavascriptExecutor) driver;
+            executor.executeScript("arguments[0].click();", element);
+            Thread.sleep(40000);
+
+        }catch ( NoSuchElementException | WebDriverException | InterruptedException e){
+            driver.close();
+            sensus(this.path, new SiteInfoSensus(this.siteName,this.url, this.username, this.password));
+        }
     }
+
     /** Get file name
-
      */
-    private void getSensusReport() throws InterruptedException {
+    private void getSensusReport() throws ParseException, IOException, InterruptedException {
+        try {
+            //CLICK MENU
+            driver.findElement(By.xpath("//div[@ng-if='grid.options.enableGridMenu']")).click();
+            WebElement link4 = driver.findElement(By.xpath("//button[@ng-click='itemAction($event, title)']"));
+            link4.click();
 
-        //DOWNLOAD .CSV FILE
-        WebElement element = driver.findElement(By.xpath("//a[@href='/reportgen']"));
-        JavascriptExecutor executor = (JavascriptExecutor)driver;
-        executor.executeScript("arguments[0].click();", element);
-        Thread.sleep(40000);
+            //WAIT FOR DOWNLOAD AND CLOSE
+       //     Thread.sleep(30000);
 
-        //CLICK MENU
-        driver.findElement(By.xpath("//div[@ng-if='grid.options.enableGridMenu']")).click();
-        WebElement link4 = driver.findElement(By.xpath("//button[@ng-click='itemAction($event, title)']"));
-        link4.click();
+            //WAIT FOR DOWNLOAD MENU TO COMPLETE
+            WebDriverWait wait = new WebDriverWait(driver, 100000);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[contains(@class, 'messageSpacing  alert alert-info') and text()='Export request completed.']")));
+            Thread.sleep(3000);
 
-        //WAIT FOR DOWNLOAD AND CLOSE
-        Thread.sleep(30000);
-        //  WebDriverWait wait2 = new WebDriverWait(driver, 100000);
-        //   wait2.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@class='messageSpacing alert alert-info']")));
-
+            //CHECK IF REPORT WAS DOWNLOADED________________________________________________EXCEPTION<<<<<< >>>>>>>>>>
+            if(!DirPathFinder.checkIfDownloaded(DirPathFinder.networkDownloadPath(siteName))){
+                driver.navigate().refresh();
+                getSensusReport();
+                System.out.println(">>>>>>>>DID NOT DOWNLOAD REPORT ----> TRYING AGAIN.............");
+            }
+        }catch (NoSuchElementException | WebDriverException | InterruptedException e){
+            driver.close();
+            sensus(this.path, new SiteInfoSensus(this.siteName,this.url, this.username, this.password));
+        }
     }
-
     private void getAdditionalReport() throws InterruptedException {
 
     }
+
 
     /**
      * FireFox Settings

@@ -32,15 +32,15 @@ public class WebAutomationApplication {
 		SpringApplication.run(WebAutomationApplication.class, args);
 		main2();
 	}
+
 	public static void main2() throws Exception {
 
 		//GET BADGER SITE INFO FROM DB
 		ConnectToPost conn = new ConnectToPost();
-		ArrayList<SiteInfoBadger> site_info_Badger = new ArrayList<>();
 
+		ArrayList<SiteInfoBadger> site_info_Badger = new ArrayList<>();
 		PreparedStatement preparedStatement = conn.getConnection().prepareStatement("SELECT b.site_name, s.rni, s.username, s.password, b.avail_api, b.prepro_api,b.pro_api, b.leak_api, b.tamper_api, b.encoder_api, b.additional_login, l.vendor FROM site_login s, badger_api b, site l WHERE l.site_id = s.site_id and s.site_id = b.site_id;");
 		ResultSet resultSet = preparedStatement.executeQuery();
-
 		while (resultSet.next()) {
 			String site_name = resultSet.getString("site_name");
 			String rni = resultSet.getString("rni");
@@ -57,17 +57,18 @@ public class WebAutomationApplication {
 			SiteInfoBadger s = new SiteInfoBadger(site_name, rni, username, password, vendor, avail_api, prepro_api, pro_api, leak_api, tamper_api, encoder_api, additional_login);
 			site_info_Badger.add(s);
 		}
-		for (int i  =2; i <site_info_Badger.size(); i++) {
-	 //     runBadger(site_info_Badger, i);
-	}
-		//runBadger(site_info_Badger, 0);
 
-        //<><><<><><><><><><><><><><>_________SENSUS_____<><><><><><><><><><><><><><><><><><><________________________________________________________________________________________________
+		//LOOP LIST
+		for (int i  =0; i <site_info_Badger.size(); i++) {
+			//	runBadger(site_info_Badger, i);
+		}
+	//	runBadger(site_info_Badger, 1);
+
+        //<><><<><><><><><><><><><><>_________SENSUS_____<><><><><><><><><><><><><><><><><><><_________________________________<><><<><><><><><><><><><><>_________SENSUS_____<><><><><><><><><><><><><><><><><><><______________________________________
+
 		//GET SENSUS SITE INFO FROM DB
-		ArrayList<SiteInfoSensus> site_info_sensus = new ArrayList<>();
-
+		ArrayList<SiteInfoSensus> site_sensus = new ArrayList<>();
 		PreparedStatement preparedStatement1 = conn.getConnection().prepareStatement("select l.site_name, l.rni, l.username, l.password from site s, site_login l where s.site_id = l.site_id and lower( s.vendor) = 'sensus';");
-
 		ResultSet resultSet1 = preparedStatement1.executeQuery();
 		while (resultSet1.next()) {
 			String site_name = resultSet1.getString("site_name");
@@ -75,90 +76,98 @@ public class WebAutomationApplication {
 			String username = resultSet1.getString("username");
 			String password = resultSet1.getString("password");
 			SiteInfoSensus ss = new SiteInfoSensus(site_name, rni, username, password);
-			site_info_sensus.add(ss);
+			site_sensus.add(ss);
 		}
-		conn.close();
+		conn.close();//System.out.println(site_sensus);
 
 		//LOOP LIST
-		for (int i  = 3; i <site_info_sensus.size(); i++) {
-		//	runSensus(site_info_sensus, i);
+		for (int i  = 0; i < site_sensus.size(); i++) {
+		//	runSensus(site_sensus, i);
 		}
-		runSensus(site_info_sensus, 2);
+    	runSensus(site_sensus, 1);
 	}
-
 	private static void runBadger(ArrayList<SiteInfoBadger> site, int i) throws Exception {
 
-			//GET NETWORK REPORTS FOR WEB
+		 System.out.println("_____" + site.get(i).getSite_name() + "___STARTED");
+
+	     	//GET NETWORK REPORTS FOR WEB
 			WebBadger downloadReport = new WebBadger();
 			downloadReport.Badger(DirPathFinder.networkDownloadPath(site.get(i).getSite_name()),site.get(i));
 
-			//PARSE .CSV NETWORK REPORT
-			ModifyBadgerReports report = new ModifyBadgerReports(downloadReport.getPath(), site.get(i).getSite_name());
-			report.process();
 
-			//MOVE ON IF REPORTS WERE DOWNLOADED
-			if (report.processed()) {
+				//PARSE .CSV NETWORK REPORT
+				ModifyBadgerReports report = new ModifyBadgerReports(downloadReport.getPath(), site.get(i).getSite_name());
+				report.process();
+
+				//MOVE ON IF REPORTS WERE DOWNLOADED
 
 				//CONNECT TO DB
-				ConnectingToDB conn = new ConnectingToDB(site.get(i).getSite_name());
+					ConnectingToDB conn = new ConnectingToDB(site.get(i).getSite_name());
 
 				//DELETE EXISTING DATA
-				DeleteFromTable.deleteFromTable(conn, "beacon");
+		     DeleteFromTable.deleteFromTable(conn, "beacon");
 
 				//INSERT NETWORK REPORT INTO TABLE
-				InsertIntoTable.beacon(conn, report.getModifiedNetworkReport());
+		     InsertIntoTable.beacon(conn, report.getModifiedNetworkReport());
 
-				//RUN PROCEDURE
-				RunProcedure.runNetwork_Analysis_Badger(conn);
+				//		//RUN PROCEDURE
+			//	RunProcedure.runNetwork_Analysis_Badger(conn);
 
 				//GET NETWORK ANALYSIS VIEW
-				SelectFromView.V_Network_Analysis(conn);
+						SelectFromView.V_Network_Analysis(conn);
 
-		        //conn.close();
+					       conn.close();
 
 				//LET EMAIL SERVER KNOW THE NA IS COMPLETE
-				RestClient r = new RestClient();
+			//	RestClient r = new RestClient();
 
-				r.sendReport(site.get(i).getSite_name(), report.getModifiedNetworkReport().getReportType());
+			//	r.sendReport(site.get(i).getSite_name(), report.getModifiedNetworkReport().getReportType());
+			//	System.out.println("_____" + site.get(i).getSite_name() + "___COMPLETE.");
 
 				//SEND LEAK REPORT
 				//r.sendReport(sites.get(index)[0], new BadgerLeakReport());
-			}
+
 		}
     /*SENSUS*/
-	public static void runSensus(ArrayList<SiteInfoSensus> site_info_sensus, int i) throws Exception {
+	public static void runSensus(ArrayList<SiteInfoSensus> site_sensus, int i) throws Exception {
 
 		//GET NETWORK REPORTS FOR WEB
-		WebSensus connectingTo = new WebSensus();
-		connectingTo.sensus(DirPathFinder.networkModPath(site_info_sensus.get(i).getSite_name()), site_info_sensus.get(i).getUsername(), site_info_sensus.get(i).getPassword(), site_info_sensus.get(i).getRni());
+		WebSensus downloadReport = new WebSensus();
+		downloadReport.sensus(DirPathFinder.networkDownloadPath(site_sensus.get(i).getSite_name()), site_sensus.get(i));
 
-		//PARSE .CSV NETWORK REPORT
-		ModifySensusReports report = new ModifySensusReports(connectingTo.getPath(), site_info_sensus.get(i).getSite_name());
-		report.processSensus();
 
-		//CONNECT TO DB
-		ConnectingToDB conn = new ConnectingToDB(site_info_sensus.get(i).getSite_name());
+			//PARSE .CSV NETWORK REPORT
+			ModifySensusReports report = new ModifySensusReports(downloadReport.getPath(), site_sensus.get(i).getSite_name());
+			report.processSensus();
 
-		//DELETE EXISTING DATA
-		DeleteFromTable.deleteFromTable(conn, "Sensusimr");
+			//CONNECT TO DB
+		    ConnectingToDB conn = new ConnectingToDB(site_sensus.get(i).getSite_name());
 
-		//INSERT NETWORK REPORT INTO TABLE
-		InsertIntoTable.sensusimr(conn, report.getModifiedNetworkReport());
+			//DELETE EXISTING DATA
+				DeleteFromTable.deleteFromTable(conn, "Sensusimr");
 
-		//RUN PROCEDURE
-		RunProcedure.runNetwork_Analysis_Sensus(conn);
+			//INSERT NETWORK REPORT INTO TABLE
+				InsertIntoTable.sensusimr(conn, report.getModifiedNetworkReport());
 
-		//GET NETWORK ANALYSIS VIEW
+			//RUN PROCEDURE
+				//RunProcedure.runNetwork_Analysis_Sensus(conn);
+
+			//GET NETWORK ANALYSIS VIEW
 		SelectFromView.V_Network_Analysis(conn);
 
-		conn.close();
+				conn.close();
 
-		//LET EMAIL SERVER KNOW THE NA IS COMPLETE
-		//	RestClient c1 = new RestClient();
-		//	c1.sendReport(sites.get(index)[0], report.getModifiedNetworkReport());
+			/*try {//LET EMAIL SERVER KNOW THE NA IS COMPLETE
+				RestClient c1 = new RestClient();
+				c1.sendReport(site_sensus.get(i).getSite_name(), report.getModifiedNetworkReport().getReportType());
 
-		//RestClient c2 = new RestClient();
-		//c2.sendReport(sites.get(index)[0], report.getLeakReport());
+				System.out.println("_____" + site_sensus.get(i).getSite_name() + "___COMPLETE.");
+			}catch (Exception ignored){};*/
+
+
+			//RestClient c2 = new RestClient();
+			//c2.sendReport(sites.get(index)[0], report.getLeakReport());
+
 	}
 }
 

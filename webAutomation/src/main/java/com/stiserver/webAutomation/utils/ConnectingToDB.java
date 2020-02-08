@@ -33,11 +33,11 @@ public class ConnectingToDB
 
         if (conn != null)
         {
-            System.out.println("Connected to the database!");
+            System.out.println("::::::::::::::::::::::::::::::::::::\nConnected to Oracle database!\n::::::::::::::::::::::::::::::::::::");
             isConnected = true;
         } else
         {
-            System.out.println("Failed to make connection!");
+            System.out.println(":*****:\nFailed to make connection!\n:******:");
         }
     }
 
@@ -49,6 +49,7 @@ public class ConnectingToDB
     {
         return isConnected;
     }
+
 
     public String getSiteName(){return siteName;}
 

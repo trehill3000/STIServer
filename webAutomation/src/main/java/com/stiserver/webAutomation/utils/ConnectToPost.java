@@ -19,15 +19,16 @@ public class ConnectToPost {
      */
     public ConnectToPost() throws SQLException, ClassNotFoundException {
         Class.forName("org.postgresql.Driver");
-        conn = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/email_master7", "thill", "2550");
+        conn = DriverManager.getConnection("jdbc:postgresql://127.0.0.1:5432/email_test", "thill", "2550");
 
         if (conn != null)
         {
-            System.out.println("Connected to the database!");
+            System.out.println("::::::::::::::::::::::::::::::::::::\n" +
+                                "Connected to Postgresql database!\n::::::::::::::::::::::::::::::::::::");
             isConnected = true;
         } else
         {
-            System.out.println("Failed to make connection!");
+            System.out.println(":*****:\nFailed to make connection!\n:*****:");
         }
     }
 
@@ -39,7 +40,6 @@ public class ConnectToPost {
     {
         return isConnected;
     }
-
 
     /**
      * Pass connection to not make or recreate another connection.

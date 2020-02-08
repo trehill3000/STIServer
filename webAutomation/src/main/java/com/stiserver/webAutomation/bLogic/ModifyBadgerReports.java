@@ -53,11 +53,11 @@ public class ModifyBadgerReports {
         setBadgerFiles();
 
         //READ AVAILABLE REPORT
-        List<String[]> avail = readCsv(path, available.getName());
-        avail = editAvailableReport(avail);
+       // List<String[]> avail = readCsv(path, available.getName());
+     //   avail = editAvailableReport(avail);
 
         //WRITE LIST TO LOCATION
-        writeToAvail(avail);
+     //   writeToAvail(avail);
 
         //READ PRE REPORT____________________________________________________________________________________________________
         List<String[]> prePro = readCsv(path, preProReport.getName());
@@ -97,6 +97,11 @@ public class ModifyBadgerReports {
         //   allRows.forEach(s-> System.out.println(Arrays.toString(s)));
     }
 
+    /**
+     * GET AVAIL
+     * @param allRows r
+     * @return r
+     */
     private List<String[]> editAvailableReport(List<String[]> allRows) {
         CsvReader reader = new CsvReader();
 
@@ -110,6 +115,24 @@ public class ModifyBadgerReports {
        //    allRows.forEach(n -> System.out.println(Arrays.toString(n)));
 
         return  allRows;
+    }
+
+    private void writeToAvail(List<String[]> avail) throws IOException{
+
+        List<String[]> allRows = new ArrayList<>(avail);
+
+        // System.out.println(allRows.size());
+
+        //WRITE TO THE .CSV FILE
+        CSVWriter writer = new CSVWriter(new FileWriter(DirPathFinder.networkModPath(siteName) + "\\"+siteName + "_Network_Analysis_Available_"+ new SimpleDateFormat("MM-dd-yyyy").format(new Date())  +".csv",true));
+        //WRITE TO THE .CSV FILE
+        allRows.forEach(s -> writer.writeAll(Collections.singleton(s)));
+
+
+        data = allRows;
+        writer.close();
+
+
     }
 
     /**
@@ -191,24 +214,6 @@ public class ModifyBadgerReports {
 
     }
 
-    private void writeToAvail(List<String[]> avail) throws IOException{
-
-        List<String[]> allRows = new ArrayList<>(avail);
-
-       // System.out.println(allRows.size());
-
-        //WRITE TO THE .CSV FILE
-        CSVWriter writer = new CSVWriter(new FileWriter(DirPathFinder.networkModPath(siteName) + "\\"+siteName + "_Network_Analysis_Available_"+ new SimpleDateFormat("MM-dd-yyyy").format(new Date())  +".csv",true));
-        //WRITE TO THE .CSV FILE
-        allRows.forEach(s -> writer.writeAll(Collections.singleton(s)));
-
-
-        data = allRows;
-        writer.close();
-
-
-    }
-
     /**
      * Set the Most recent modified file names for 2 reports.
      * Must find the most recent and second most recent file by date modified.
@@ -274,7 +279,7 @@ public class ModifyBadgerReports {
         preProReport = (lastModFile);
         tempFileName.remove(lastModFile);
 
-        date1 = sdf.parse(sdf.format(tempFileName.get(0).lastModified()));//<--default date
+    /*    date1 = sdf.parse(sdf.format(tempFileName.get(0).lastModified()));//<--default date
 
         for(File file: tempFileName) {
             //  System.out.println(" Date1: " + date1);
@@ -292,7 +297,7 @@ public class ModifyBadgerReports {
                 lastModFile = file;
             }
         }
-        available = (lastModFile);
+        available = (lastModFile);*/
     }
 
     /**

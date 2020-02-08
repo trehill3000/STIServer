@@ -11,7 +11,6 @@ public interface Report {
           ENCODER,
           BACKFLOW,
           FPR
-
      }
 
      List<String[]> getList();

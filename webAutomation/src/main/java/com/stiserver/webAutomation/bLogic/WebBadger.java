@@ -1,16 +1,11 @@
 package com.stiserver.webAutomation.bLogic;
-
 import com.stiserver.webAutomation.model.SiteInfoBadger;
 import com.stiserver.webAutomation.service.DirPathFinder;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.FluentWait;
-import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.File;
@@ -20,14 +15,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -39,7 +31,6 @@ public class WebBadger {
     private String username;
     private String password;
     private String path;
-
     private String avail_report;
     private String prepro_report;
     private String pro_report;
@@ -47,7 +38,6 @@ public class WebBadger {
     private String tamper_report;
     private String encoder_report;
     private String additionalLogin;
-
     private WebDriver driver;
 
     /**
@@ -56,12 +46,17 @@ public class WebBadger {
     public WebBadger(){
     }
 
-    public void Badger(String p, SiteInfoBadger site) throws InterruptedException, IOException, ParseException {
+    /**
+     * CONSTRUCTOR
+     * @param p F
+     * @param site F
+     * @throws ParseException F
+     */
+    public void Badger(String p, SiteInfoBadger site) throws ParseException {
         this.path = p;
         this.username = site.getUsername();
         this.password = site.getPassword();
         this.siteName = site.getSite_name();
-
         this.avail_report = site.getAvail_api();
         this.prepro_report = site.getPrepro_api();
         this.pro_report = site.getPro_api();
@@ -69,24 +64,33 @@ public class WebBadger {
         this.tamper_report = site.getTamper_api();
         this.encoder_report = site.getEncoder_api();
         this.additionalLogin = site.getAdditional_login();
-
         driver = new FirefoxDriver(getSettings());
+
         login();
-        getAdditionalReport();
-     //  getBadgerReports();
+        getAdditionalReports();
+        getPreProReport();
+        getProReport();
         driver.close();
     }
 
-    /**LOGIN IN
-     *
-     * @throws InterruptedException E
+    /**
+     * GET ADDITIONAL REPORT
      */
-    public void login() throws InterruptedException {
+    public void getAdditionalReports() throws ParseException {
+        getTamperReport();
+        getEncoderReport();
+        getLeakReport();
+        getBackflowReport();
+    }
 
+    /**LOGIN IN
+     */
+    public void login(){
+        try{
         if(additionalLogin ==  null || additionalLogin.equals("")) {
             //CLEAN UP
             driver.manage().deleteAllCookies();
-            driver.manage().timeouts().pageLoadTimeout(15, SECONDS);
+            driver.manage().timeouts().pageLoadTimeout(25, SECONDS);
             driver.manage().timeouts().implicitlyWait(6, SECONDS);
 
             //LOGIN
@@ -97,230 +101,313 @@ public class WebBadger {
             Thread.sleep(3000);
         }
         //EXTRA LOGIN STEP
-        else{loginAdditional();        }
+        else {loginAdditional();}
+        }
+        catch (InterruptedException | NoSuchElementException | WebDriverException e){login();
+        }
     }
 
     /**
-     * ADDITIONAL LOGIN
-     * @throws InterruptedException G
-     */
-    public void loginAdditional() throws InterruptedException {
-
-        //CLEAN UP
-        driver.manage().deleteAllCookies();
-        driver.manage().timeouts().pageLoadTimeout(6, SECONDS);
-        driver.manage().timeouts().implicitlyWait(6, SECONDS);
-
-        //LOGIN
-        driver.get("https://beaconama.net/signin");
-        driver.findElement(By.id("username")).sendKeys(username);
-        driver.findElement(By.id("password")).sendKeys(password);
-        driver.findElement(By.id("ba-submit")).click();
-        driver.findElement(By.xpath("//button[@value='" + additionalLogin +"']")).click();
-
-        Thread.sleep(3000);
-    }
-
-    /**
-     *GET REPORTS
-     */
-    private void getBadgerReports() throws InterruptedException {
-
-      //  driver.manage().timeouts().pageLoadTimeout(5000, SECONDS);
-        try{driver.get("https://beaconama.net/" + avail_report);}catch (Exception ignored){};
-        try{driver.get("https://beaconama.net/" + prepro_report);}catch (Exception ignored){};
-        try{driver.get("https://beaconama.net/" + pro_report);}catch (Exception ignored){};
-    }
-
-    /*   public void clickyyy() throws InterruptedException {
-
-        Thread.sleep(3000);
-
-
-        //DOWNLOAD PRE-PROVISIONED AND PROVISIONED REPORTS_______________________________________________________________________________________
-        driver.navigate().refresh();
-        driver.findElement(By.id("snassets")).click();
-        Thread.sleep(2000);
-        driver.findElement(By.xpath("//a[@href='#admin-tab-endpoints']")).click();
-        Thread.sleep(2000);
-        driver.findElement(By.id("batch-actions-pre")).click();
-        driver.findElement(By.id("action-export-pre-extended")).click();
-        Thread.sleep(2000);
-        driver.findElement(By.id("asset-export-button")).click();
-
-        //WAIT FOR ELEMENT AND CLICK
-        Wait<WebDriver> wait12 = new FluentWait<>(driver)
-                .withTimeout(500000, SECONDS)
-                .pollingEvery(30000, SECONDS)
-                .ignoring(Exception.class);
-
-        WebElement clicked1 = wait12.until(new Function<WebDriver, WebElement>() {
-            @Override
-            public WebElement apply(WebDriver webDriver) {
-                return wait12.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@id='export_result_url']")));
-
-            }
-        });
-        clicked1.click();
-
-
-        //GET NEXT REPORT_____________________________________________________________________________________________________________________
-        driver.navigate().refresh();
-        Thread.sleep(2000);
-        driver.findElement(By.xpath("//a[@href='#admin-tab-endpoints']")).click();
-        Thread.sleep(2000);
-        driver.findElement(By.id("batch-actions")).click();
-        driver.findElement(By.id("action-export-extended")).click();
-        Thread.sleep(2000);
-        driver.findElement(By.id("asset-export-button")).click();
-
-        //WAIT FOR ELEMENT AND CLICK
-        Wait<WebDriver> wait113 = new FluentWait<>(driver)
-                .withTimeout(500000, SECONDS)
-                .pollingEvery(30000, SECONDS)
-                .ignoring(Exception.class);
-
-        WebElement clicked2 = wait113.until(new Function<WebDriver, WebElement>() {
-            @Override
-            public WebElement apply(WebDriver webDriver) {
-                return wait113.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[@id='export_result_url']")));
-
-            }
-        });
-        clicked2.click();
-    }*/
-
-    /**
-     *GET ADDITIONAL ANALYTICAL REPORTS
-     */
-    private void getAdditionalReport() throws InterruptedException, IOException, ParseException {
-
-        //DID IT DOWNLOAD?
-        boolean downloaded = false;
-        Thread.sleep(2000);
-
-        //DOWNLOAD ENDPOINT TAMPER REPORT______________________________________________________________________________________________________________________________
-        driver.navigate().to("https://beaconama.net/admin/portfolio");
+     *ADDITIONAL LOGIN
+\     */
+    public void loginAdditional() {
         try {
-            driver.navigate().to("https://beaconama.net/admin/portfolio/monitor?i=aag%3Aexceptions%3ATamper%2CMagneticTamper%3Aall&view=map");
+            //CLEAN UP
+            driver.manage().deleteAllCookies();
+            driver.manage().timeouts().pageLoadTimeout(25, SECONDS);
+            driver.manage().timeouts().implicitlyWait(6, SECONDS);
 
+            //LOGIN
+            driver.get("https://beaconama.net/signin");
+            driver.findElement(By.id("username")).sendKeys(username);
+            driver.findElement(By.id("password")).sendKeys(password);
+            driver.findElement(By.id("ba-submit")).click();
+            driver.findElement(By.xpath("//button[@value='" + additionalLogin + "']")).click();
+            System.out.println(siteName +   " LOGGED IN...");
+
+            Thread.sleep(3000);
+        }catch (InterruptedException | NoSuchElementException | WebDriverException e){
+            System.out.println(">>>>>>>>ERROR - LOGIN IN ----> TRYING AGAIN............");
+            loginAdditional();}
+    }
+
+    /**
+     * DOWNLOAD PRE-PROVISIONED REPORT
+      * @throws ParseException D
+     */
+    public void getPreProReport() throws ParseException {
+        try {
+            driver.findElement(By.id("snassets")).click();
+            Thread.sleep(2000);
+            driver.findElement(By.xpath("//a[@href='#admin-tab-endpoints']")).click();
+
+            //DOWNLOAD PRE-PROVISIONED
+            Thread.sleep(2000);
+            driver.findElement(By.id("batch-actions-pre")).click();
+            driver.findElement(By.id("batch-actions-pre")).click();
+            driver.findElement(By.id("action-export-pre-extended")).click();
+            driver.findElement(By.id("asset-export-button")).click();
+
+            //WAIT FOR DOWNLOAD MENU TO COMPLETE
+            WebDriverWait wait = new WebDriverWait(driver, 100000);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
+            Thread.sleep(3000);
+        }catch (InterruptedException | NoSuchElementException | WebDriverException e){ //NETWORK ERROR?
+            System.out.println(">>>>>>>>ERROR {1} ----> TRYING AGAIN............." + e.getMessage());
+            driver.navigate().refresh();
+            getPreProReport();}
+
+        //ACTUALLY CLICK DOWNLOAD BUTTON
+        try { driver.findElement(By.id("export_result_url")).click();}
+        catch (NoSuchElementException | WebDriverException e){
+            System.out.println(">>>>>>>>ERROR {2} ----> TRYING AGAIN............");
+            driver.navigate().refresh();
+            getPreProReport();
+        }
+        if (!DirPathFinder.checkIfDownloaded(DirPathFinder.networkDownloadPath(siteName))){ //CHECK IF REPORT WAS DOWNLOADED_______________________________________________________________EXCEPTION<<<<<< >>>>>>>>>>
+            System.out.println(">>>>>>>>DID NOT DOWNLOAD PRE PROVISIONED REPORT{1} ----> REFRESHING AND TRYING AGAIN.............");
+            driver.navigate().refresh();
+            getPreProReport();
+        }
+    }
+
+    /**
+     * DOWNLOAD PROVISIONED REPORT
+     * @throws ParseException D
+     */
+    public void getProReport() throws ParseException {
+        //GET NEXT REPORT
+        try {
+            driver.navigate().refresh();
+            driver.findElement(By.id("snassets")).click();
+            Thread.sleep(2000);
+            driver.findElement(By.xpath("//a[@href='#admin-tab-endpoints']")).click();
             Thread.sleep(2000);
             driver.findElement(By.id("batch-actions")).click();
+            driver.findElement(By.id("action-export-extended")).click();
+            Thread.sleep(2000);
+            driver.findElement(By.id("asset-export-button")).click();
+
+            //WAIT FOR DOWNLOAD MENU TO COMPLETE
+            WebDriverWait wait2 = new WebDriverWait(driver, 100000);
+            wait2.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
+            Thread.sleep(2000);
+        } catch (InterruptedException | NoSuchElementException | WebDriverException e) {
+            System.out.println(">>>>>>>>ERROR {1} ----> TRYING AGAIN............." + e.getMessage());
+            driver.navigate().refresh();
+            getProReport();
+        }
+
+        //ACTUALLY CLICK DOWNLOAD BUTTON
+        try {
+            driver.findElement(By.id("export_result_url")).click();
+        } catch (NoSuchElementException | WebDriverException e) { //CHECK IF REPORT WAS DOWNLOADED_______________________________________________________________EXCEPTION<<<<<< >>>>>>>>>>
+            System.out.println(">>>>>>>>ERROR {2} ----> TRYING AGAIN.............");
+            driver.navigate().refresh();
+            getProReport();
+        }
+
+        //CHECK IF THE FILE WAS DOWNLOADED
+        if (!DirPathFinder.checkIfDownloaded(DirPathFinder.networkDownloadPath(siteName))) {
+            System.out.println(">>>>>>>>DID NOT DOWNLOAD PROVISIONED REPORT{2} ----> REFRESHING AND TRYING AGAIN.............");
+            driver.navigate().refresh();
+            getProReport();
+        }
+    }
+
+    /**
+     * GET TAMPER REPORT
+     */
+    public void getTamperReport() throws ParseException {
+
+        //DOWNLOAD ENDPOINT TAMPER REPORT
+        driver.navigate().to("https://beaconama.net/admin/portfolio");
+        try {
+            //BADGER API
+            driver.navigate().to("https://beaconama.net/admin/portfolio/monitor?i=aag%3Aexceptions%3ATamper%2CMagneticTamper%3Aall&view=map");
+
+            //MENU
+            Thread.sleep(2000);
+            driver.findElement(By.id("batch-actions")).click();
+            Thread.sleep(2000);
             driver.findElement(By.id("action-export-data")).click();
             Thread.sleep(2000);
             driver.findElement(By.id("btn-export-new")).click();
 
-            //WAIT FOR ELEMENT AND CLICK
-            WebDriverWait wait = new WebDriverWait(driver, 100000);
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
-            Thread.sleep(3000);
-            driver.findElement(By.id("export_result_url")).click();
-            downloaded = true;
-        } catch (Exception e) {
-            driver.navigate().back();
+            //WAIT FOR DOWNLOAD MENU TO COMPLETE
+            WebDriverWait wait2 = new WebDriverWait(driver, 100000);
+            wait2.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
+            Thread.sleep(2000);
+        }catch (InterruptedException | NoSuchElementException | WebDriverException e){
+            System.out.println(">>>>>>>>ERROR {1} ----> TRYING AGAIN............." + e.getMessage());
+            driver.navigate().refresh();
+            getTamperReport();
         }
-        //FIND MOST RECENT MOD FILE AND MOVE TO ANOTHER DIR
-        if (downloaded) {
-            //Anonymous Async Function
+
+        //ACTUALLY CLICK DOWNLOAD BUTTON
+        try { driver.findElement(By.id("export_result_url")).click();}
+        catch (NoSuchElementException | WebDriverException e) { //CHECK IF REPORT WAS DOWNLOADED_______________________________________________________________EXCEPTION<<<<<< >>>>>>>>>>
+            System.out.println(">>>>>>>>ERROR {2} ----> TRYING AGAIN.............");
+            driver.navigate().refresh();
+            getTamperReport();
+        }
+
+        //CHECK IF THE FILE WAS DOWNLOADED
+        if (!DirPathFinder.checkIfDownloaded(path, 1)) {
+            System.out.println(">>>>>>>>DID NOT DOWNLOAD TAMPER REPORT{2} ----> REFRESHING AND TRYING AGAIN.............");
+            driver.navigate().refresh();
+            getTamperReport();}
+        else {
+            System.out.println("TAMPER REPORT DOWNLOADED");
+            //FIND MOST RECENT MOD FILE AND MOVE TO ANOTHER DIR
             CompletableFuture.runAsync(() -> {
+
                 //GET MOST RECENT DOWNLOAD FILE FROM DOWNLOAD DIR
+                File lastModFile = null;
+                try {
+                    lastModFile = DirPathFinder.getLastModFile(path);
+                } catch (ParseException | IOException e) {
+                    e.printStackTrace();
+                }
+                assert lastModFile != null;//System.out.println(lastModFile);
 
-                File lastModFile = getMostResModFile();
-                assert lastModFile != null;
-                //  System.out.println(lastModFile);
-
-
-                //GET CURRENT DATE
-                SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
-                //http://tutorials.jenkov.com/java-nio/files.html#files-move
-                Path destination = Paths.get(DirPathFinder.tamperSendPath(siteName) + siteName + "_Tamper_Report_" + formatter.format(new Date()) + ".csv");
-               // System.out.println("-------------" + DirPathFinder.tamperSendPath(siteName) + siteName + "_Tamper_Report_" + formatter.format(new Date()) + ".csv");
-
+                //ADD FILE TO NEW PATH DESTINATION
+                Path destination = Paths.get(DirPathFinder.tamperSendPath(siteName) + siteName + "_Tamper_Report_" + new SimpleDateFormat("MM-dd-yyyy").format(new Date()) + ".csv");
                 try {
                     Files.move(lastModFile.toPath(), destination);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             });
-
-            downloaded = false;
         }
+    }
 
-        //DOWNLOAD METER/ENCODER ALARMS REPORT______________________________________________________________________________________________________________________________
-        Thread.sleep(2000);
+    /**
+     * GET ENCODER REPORT
+     */
+    public void getEncoderReport() throws ParseException {
+
+        //DOWNLOAD METER/ENCODER ALARMS REPORT
         driver.navigate().to("https://beaconama.net/admin/portfolio");
         //DOWNLOAD REPORT
         try {
             driver.navigate().to("https://beaconama.net/admin/portfolio/monitor?i=aag%3Aexceptions%3AEmptyPipe%2CWaterPressureSensorError%2CEncoderExceedingMaxFlow%2CWaterTemperatureSensorError%2CEncoderSensorError%2CEncoderTemperature%2CEndOfLife%2CEncoderDialChange%2CEncoderRemoval%2CEncoderProgrammed%2CEncoderMagneticTamper%2CMeterTemperatureSensorError%3Aall&view=map");
 
+            //MENU
             Thread.sleep(2000);
             driver.findElement(By.id("batch-actions")).click();
+            Thread.sleep(2000);
             driver.findElement(By.id("action-export-data")).click();
             Thread.sleep(2000);
             driver.findElement(By.id("btn-export-new")).click();
 
-            //WAIT FOR ELEMENT AND CLICK
-            WebDriverWait wait = new WebDriverWait(driver, 100000);
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
-            Thread.sleep(3000);
+            //WAIT FOR DOWNLOAD MENU TO COMPLETE
+            WebDriverWait wait2 = new WebDriverWait(driver, 100000);
+            wait2.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
+            Thread.sleep(2000);
+        } catch (InterruptedException | NoSuchElementException | WebDriverException e) {
+            System.out.println(">>>>>>>>ERROR {1} ----> TRYING AGAIN............." + e.getMessage());
+            driver.navigate().refresh();
+            getEncoderReport();
+        }
+
+        //ACTUALLY CLICK DOWNLOAD BUTTON
+        try {
             driver.findElement(By.id("export_result_url")).click();
-            downloaded = true;
-        } catch (NumberFormatException ignored) {}
-        //FIND MOST RECENT MOD FILE AND MOVE TO ANOTHER DIR
-        if (downloaded) {
+        } catch (NoSuchElementException | WebDriverException e) { //CHECK IF REPORT WAS DOWNLOADED_______________________________________________________________EXCEPTION<<<<<< >>>>>>>>>>
+            System.out.println(">>>>>>>>ERROR {2} ----> TRYING AGAIN.............");
+            driver.navigate().refresh();
+            getTamperReport();
+        }
+
+        //CHECK IF THE FILE WAS DOWNLOADED
+        if (!DirPathFinder.checkIfDownloaded(path, 1)) {
+            System.out.println(">>>>>>>>DID NOT DOWNLOAD ENCODER REPORT{2} ----> REFRESHING AND TRYING AGAIN.............");
+            driver.navigate().refresh();
+            getTamperReport();
+        } else {
+            System.out.println("ENCODER REPORT DOWNLOADED");
+
             //Anonymous Async Function
             CompletableFuture.runAsync(() -> {
                 //GET MOST RECENT DOWNLOAD FILE FROM DOWNLOAD DIR
-                File lastModFile = getMostResModFile();
-                assert lastModFile != null;
+                File lastModFile = null;
+                try {
+                    lastModFile = DirPathFinder.getLastModFile(path);
+                } catch (ParseException | IOException e) {
+                    e.printStackTrace();
+                }
+                assert lastModFile != null;//System.out.println(lastModFile);
 
-                //GET CURRENT DATE
-                SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
-
-                //http://tutorials.jenkov.com/java-nio/files.html#files-move
-                Path destination = Paths.get(DirPathFinder.encoderSendPath(siteName) + siteName + "_Encoder_Report_" + formatter.format(new Date()) + ".csv");
-
+                //ADD FILE TO NEW PATH DESTINATION
+                Path destination = Paths.get(DirPathFinder.encoderSendPath(siteName) + siteName + "_Encoder_Report_" + new SimpleDateFormat("MM-dd-yyyy").format(new Date()) + ".csv");
                 try {
                     Files.move(lastModFile.toPath(), destination);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             });
-            downloaded = false;
         }
+    }
 
-        //DOWNLOAD LEAK ALARMS  REPORT______________________________________________________________________________________________________________________________________
-        Thread.sleep(2000);
+    /**
+     * GET LEAKS REPORT
+     */
+    public void getLeakReport() throws ParseException {
+
+        //DOWNLOAD LEAK ALARMS  REPORT
         driver.navigate().to("https://beaconama.net/admin/portfolio");
         try {
             driver.navigate().to("https://beaconama.net/admin/portfolio/monitor?i=aag%3Aflow%3Aleak%3Aall&view=map");
 
+            //MENU
             Thread.sleep(2000);
             driver.findElement(By.id("batch-actions")).click();
+            Thread.sleep(2000);
             driver.findElement(By.id("action-export-data")).click();
             Thread.sleep(2000);
             driver.findElement(By.id("btn-export-new")).click();
 
+            //WAIT FOR DOWNLOAD MENU TO COMPLETE
+            WebDriverWait wait2 = new WebDriverWait(driver, 100000);
+            wait2.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
+            Thread.sleep(2000);
+        } catch (InterruptedException | NoSuchElementException | WebDriverException e) {
+            System.out.println(">>>>>>>>ERROR {1} ----> TRYING AGAIN............." + e.getMessage());
+            driver.navigate().refresh();
+            getEncoderReport();
+        }
 
-            //WAIT FOR ELEMENT AND CLICK
-            WebDriverWait wait = new WebDriverWait(driver, 100000);
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
-            Thread.sleep(3000);
+        //ACTUALLY CLICK DOWNLOAD BUTTON
+        try {
             driver.findElement(By.id("export_result_url")).click();
-            downloaded = true;
-        } catch (NumberFormatException ignored) {}
-        //FIND MOST RECENT MOD FILE AND MOVE TO ANOTHER DIR
-        if (downloaded) {
+        } catch (NoSuchElementException | WebDriverException e) { //CHECK IF REPORT WAS DOWNLOADED_______________________________________________________________EXCEPTION<<<<<< >>>>>>>>>>
+            System.out.println(">>>>>>>>ERROR {2} ----> TRYING AGAIN.............");
+            driver.navigate().refresh();
+            getTamperReport();
+        }
+
+        //CHECK IF THE FILE WAS DOWNLOADED
+        if (!DirPathFinder.checkIfDownloaded(path, 1)) {
+            System.out.println(">>>>>>>>DID NOT DOWNLOAD BACKFLOW REPORT{2} ----> REFRESHING AND TRYING AGAIN.............");
+            driver.navigate().refresh();
+            getLeakReport();
+        } else {
+            System.out.println("LEAKS REPORT DOWNLOADED");
+
             //Anonymous Async Function
             CompletableFuture.runAsync(() -> {
                 //GET MOST RECENT DOWNLOAD FILE FROM DOWNLOAD DIR
-                File lastModFile = getMostResModFile();
-                assert lastModFile != null;
+                File lastModFile = null;
+                try {
+                    lastModFile = DirPathFinder.getLastModFile(path);
+                } catch (ParseException | IOException e) {
+                    e.printStackTrace();
+                }
+                assert lastModFile != null;//System.out.println(lastModFile);
 
-                //GET CURRENT DATE
-                SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
-                //http://tutorials.jenkov.com/java-nio/files.html#files-move
-                Path destination = Paths.get(DirPathFinder.leakSendPath(siteName) + siteName + "_Leak_Report_" + formatter.format(new Date()) + ".csv");
+                //ADD FILE TO NEW PATH DESTINATION
+                Path destination = Paths.get(DirPathFinder.leakSendPath(siteName) + siteName + "_Leak_Report_" + new SimpleDateFormat("MM-dd-yyyy").format(new Date()) + ".csv");
 
                 try {
                     Files.move(lastModFile.toPath(), destination);
@@ -328,52 +415,94 @@ public class WebBadger {
                     e.printStackTrace();
                 }
             });
-            downloaded = false;
         }
+    }
 
-        //DOWNLOAD BACK FLOW REPORT____________________________________________________________________________________________________________________________________
-        Thread.sleep(2000);
+    /**
+     * GET BACKFLOW REPORT
+     */
+    public void getBackflowReport() throws ParseException {
+        //DOWNLOAD BACK FLOW REPORT
         driver.navigate().to("https://beaconama.net/admin/portfolio");
         try {
             driver.navigate().to("https://beaconama.net/admin/portfolio/monitor?i=aag%3Aflow%3Aback_flow%3Aall&view=map");
 
+            //MENU
             Thread.sleep(2000);
             driver.findElement(By.id("batch-actions")).click();
+            Thread.sleep(2000);
             driver.findElement(By.id("action-export-data")).click();
             Thread.sleep(2000);
             driver.findElement(By.id("btn-export-new")).click();
 
-            //WAIT FOR ELEMENT AND CLICK
-            WebDriverWait wait = new WebDriverWait(driver, 100000);
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
-            Thread.sleep(3000);
+            //WAIT FOR DOWNLOAD MENU TO COMPLETE
+            WebDriverWait wait2 = new WebDriverWait(driver, 100000);
+            wait2.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[@id='export_result_url']")));
+            Thread.sleep(2000);
+        } catch (InterruptedException | NoSuchElementException | WebDriverException e) {
+            System.out.println(">>>>>>>>ERROR {1} ----> TRYING AGAIN............." + e.getMessage());
+            driver.navigate().refresh();
+            getEncoderReport();
+        }
+
+        //ACTUALLY CLICK DOWNLOAD BUTTON
+        try {
             driver.findElement(By.id("export_result_url")).click();
-            downloaded = true;
-        } catch (NumberFormatException ignored) {}
-        if (downloaded) {
-            //Anonymous Async Function
+        } catch (NoSuchElementException | WebDriverException e) { //CHECK IF REPORT WAS DOWNLOADED_______________________________________________________________EXCEPTION<<<<<< >>>>>>>>>>
+            System.out.println(">>>>>>>>ERROR {2} ----> TRYING AGAIN.............");
+            driver.navigate().refresh();
+            getBackflowReport();
+        }
+
+        //CHECK IF THE FILE WAS DOWNLOADED
+        if (!DirPathFinder.checkIfDownloaded(path, 1)) {
+            System.out.println(">>>>>>>>DID NOT DOWNLOAD LEAKS REPORT{2} ----> REFRESHING AND TRYING AGAIN.............");
+            driver.navigate().refresh();
+            getLeakReport();
+        } else {
+            System.out.println("BACK FLOW REPORT DOWNLOADED");
+
             CompletableFuture.runAsync(() -> {
+                //GET MOST RECENT DOWNLOAD FILE FROM DOWNLOAD DIR
+                File lastModFile = null;
+                try {
+                    lastModFile = DirPathFinder.getLastModFile(path);
+                } catch (ParseException | IOException e) {
+                    e.printStackTrace();
+                }
+                assert lastModFile != null;//System.out.println(lastModFile);
 
-                    //GET MOST RECENT DOWNLOAD FILE FROM DOWNLOAD DIR
-                    File lastModFile = getMostResModFile();
-                    assert lastModFile != null;
+                //ADD FILE TO NEW PATH DESTINATION
+                Path destination = Paths.get(DirPathFinder.backFlowSendPath(siteName) +siteName +"_Back_Flow_Report_" + new SimpleDateFormat("MM-dd-yyyy").format(new Date()) + ".csv");
 
-                    //GET CURRENT DATE
-                    SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");
-                    //http://tutorials.jenkov.com/java-nio/files.html#files-move
-                    Path destination = Paths.get(DirPathFinder.backFlowSendPath(siteName) +siteName +"_Back_Flow_Report_" + formatter.format(new Date()) + ".csv");
-
-                    try {
-                        Files.move(lastModFile.toPath(), destination);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    Files.move(lastModFile.toPath(), destination);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             });
-            downloaded = false;
         }
 
         //REFRESH
         driver.navigate().refresh();
+    }
+
+    /**
+     *GET REPORTS USING API
+     */
+    private void getBadgerReports() {
+
+        //  driver.manage().timeouts().pageLoadTimeout(5000, SECONDS);
+        try{driver.get("https://beaconama.net/" + avail_report);}catch (Exception ignored){
+            driver.get("https://beaconama.net/" + avail_report);
+        };
+        try{driver.get("https://beaconama.net/" + prepro_report);}catch (Exception ignored){
+            driver.get("https://beaconama.net/" + prepro_report);
+        };
+        try{driver.get("https://beaconama.net/" + pro_report);}catch (Exception ignored){
+            driver.get("https://beaconama.net/" + pro_report);
+        };
+
     }
 
     /**
@@ -389,12 +518,9 @@ public class WebBadger {
 
         //REMOVE DIALOGUE BOX
         profile.setPreference("browser.helperApps.alwaysAsk.force", false);
-        profile.setPreference("browser.download.manager.alertOnEXEOpen", false);
-        profile.setPreference("browser.download.manager.useWindow", false);
         profile.setPreference("browser.download.manager.focusWhenStarting", false);
         profile.setPreference("browser.download.manager.useWindow", false);
         profile.setPreference("browser.download.manager.showAlertOnComplete", false);
-        profile.setPreference("browser.download.manager.showWhenStarting", false);
 
         //SET LOCATION TO DOWNLOAD FILES
         profile.setPreference("browser.download.dir", path); //Set the last directory used for saving a file from the "What should (browser) do with this file?" dialog.
@@ -408,69 +534,11 @@ public class WebBadger {
 
         //ADD PROFILE TO OPTIONS AND CREATE WEB DRIVER
         FirefoxOptions options = new FirefoxOptions();
-        //options.setLogLevel(FirefoxDriverLogLevel.DEBUG); //<--Allows you to see Status codes.
 
+        //options.setLogLevel(FirefoxDriverLogLevel.DEBUG); //<--Allows you to see Status codes.
         options.setProfile(profile);
 
         return options;
-    }
-
-    /**
-     * returns most recent mod file dir
-     * @return FILE
-     */
-    private File getMostResModFile() {
-        //GET STRING NAME OF FILES IN A DIR
-        Stream<Path> walk = null;
-        try {
-            walk = Files.walk(Paths.get(path));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        assert walk != null;
-        List<String> result = walk.filter(Files::isRegularFile).map(Path::toString).collect(Collectors.toList());
-        //result.forEach(System.out::println);
-        File lastModFile =  null;
-
-        //SET STRING TO FILE obj
-        ArrayList<File> tempFileName = new ArrayList<>();
-        for(String s: result) {
-            tempFileName.add(new File(s));
-        }
-
-        //GET THE LAST MODIFIED DATE
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-        Date date1 = null;//<--default date
-        try {
-            date1 = sdf.parse(sdf.format(tempFileName.get(0).lastModified()));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        for(File file: tempFileName) {
-            //  System.out.println(" Date1: " + date1);
-            //    System.out.println(" Date2: " + sdf.format(file.lastModified()));
-            // System.out.println(" Format:" + file + " " + sdf.format(file.lastModified()));
-            Date date2 = null;
-            try {
-                date2 = sdf.parse(sdf.format(file.lastModified()));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            assert date1 != null;
-            assert date2 != null;
-            if (date1.compareTo(date2) < 0) {
-                //System.out.println("--Date1 is before Date2");
-                date1 = date2;
-                lastModFile = file;
-            } else if (date1.compareTo(date2) == 0) {
-                //System.out.println("--Date1 is equal to Date2");
-                date1 = date2;
-                lastModFile = file;
-            }
-        }
-
-        return lastModFile;
     }
 
     /**
